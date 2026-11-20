@@ -1,5 +1,5 @@
 {
-    "name": "ctdflow/connect-the-dots",
+    "name": "ctdflow/connect-the-dots-woocommerce",
     "description": "Plan the delivery routes of your WooCommerce orders with Connect the Dots.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

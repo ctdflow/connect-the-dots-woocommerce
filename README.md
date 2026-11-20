@@ -7,7 +7,7 @@ Plan the delivery routes of your WooCommerce orders with [Connect the Dots](http
 Install it with Composer, for example in a [Bedrock](https://roots.io/bedrock/) site:
 
 ```bash
-composer require ctdflow/connect-the-dots
+composer require ctdflow/connect-the-dots-woocommerce
 ```
 
 The package has the type `wordpress-plugin`, so [composer/installers](https://github.com/composer/installers) places it in `wp-content/plugins/connect-the-dots`. Activate it, open WooCommerce > Delivery routes and connect your shop. The Dutch translation is built when a release is made, so a Composer install shows the plugin in English.
