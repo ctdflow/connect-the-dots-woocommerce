@@ -1,0 +1,51 @@
+/* Routes tab of Connect the Dots. */
+
+.ctdflow-routes .ctdflow-account {
+	font-size: 14px;
+}
+
+.ctdflow-routes .ctdflow-day {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	margin: 16px 0;
+}
+
+.ctdflow-routes .ctdflow-orders {
+	max-width: 960px;
+}
+
+.ctdflow-routes .ctdflow-vans label {
+	margin-right: 16px;
+}
+
+.ctdflow-routes .ctdflow-choice .button {
+	margin-right: 8px;
+}
+
+.ctdflow-routes .ctdflow-pending .spinner {
+	float: none;
+	margin: 0 8px 0 0;
+}
+
+.ctdflow-routes .ctdflow-route {
+	max-width: 960px;
+	margin: 24px 0;
+}
+
+.ctdflow-routes .ctdflow-route-header {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ctdflow-routes .ctdflow-driver-link {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 0;
+}

@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"core": null,
+	"phpVersion": "8.1",
+	"plugins": [
+		"https://downloads.wordpress.org/plugin/woocommerce.zip"
+	],
+	"mappings": {
+		"wp-content/plugins/connect-the-dots": "."
+	},
+	"lifecycleScripts": {
+		"afterStart": "npx @wordpress/env@10 run cli wp plugin activate connect-the-dots"
+	}
+}

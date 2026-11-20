@@ -1,0 +1,12 @@
+/.distignore
+/.gitignore
+/.wp-env.json
+/.wp-env.override.json
+/composer.json
+/composer.lock
+/phpunit.xml.dist
+/README.md
+/tests
+/vendor
+/.wordpress-org
+/phpunit.multisite.xml.dist
