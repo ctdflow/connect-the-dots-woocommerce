@@ -6,6 +6,8 @@
  * the installed WordPress version. Elsewhere the wp-phpunit Composer package is used.
  */
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
+
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 require_once dirname( __DIR__ ) . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
 
@@ -46,6 +48,10 @@ tests_add_filter(
 
 		try {
 			WC_Install::install();
+
+			// Before woocommerce_init, WC_Install leaves out the order tables of HPOS, so on an empty
+			// test database they are created here.
+			wc_get_container()->get( DataSynchronizer::class )->create_database_tables();
 		} finally {
 			$wpdb->suppress_errors( $suppressed );
 		}
