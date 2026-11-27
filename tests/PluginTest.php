@@ -28,7 +28,7 @@ class PluginTest extends TestCase {
 	}
 
 	public function test_without_woocommerce_it_shows_a_notice_and_registers_no_menu(): void {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$this->actAsUserWhoCanActivatePlugins();
 		remove_all_actions( 'admin_notices' );
 		remove_all_actions( 'admin_menu' );
 
@@ -36,6 +36,19 @@ class PluginTest extends TestCase {
 
 		$this->assertStringContainsString( 'Connect the Dots needs WooCommerce', $this->adminNotices() );
 		$this->assertNotContains( 'ctdflow-delivery-routes', $this->submenuSlugs() );
+	}
+
+	public function test_on_multisite_only_a_network_administrator_sees_the_notice(): void {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only on multisite.' );
+		}
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		remove_all_actions( 'admin_notices' );
+
+		Plugin::instance()->registerHooks( false );
+
+		$this->assertStringNotContainsString( 'Connect the Dots needs WooCommerce', $this->adminNotices() );
 	}
 
 	public function test_with_woocommerce_it_shows_no_notice_and_registers_the_menu(): void {
@@ -101,5 +114,18 @@ class PluginTest extends TestCase {
 		do_action( 'admin_notices' );
 
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Logs in an administrator who may activate plugins. On multisite only a network administrator may.
+	 */
+	private function actAsUserWhoCanActivatePlugins(): void {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+
+		if ( is_multisite() ) {
+			grant_super_admin( $user_id );
+		}
+
+		wp_set_current_user( $user_id );
 	}
 }
