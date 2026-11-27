@@ -54,7 +54,7 @@ wp-env reads `WP_ENV_CORE` and `WP_ENV_PHP_VERSION`. To test against the oldest 
 
 ```json
 {
-	"core": "https://wordpress.org/wordpress-6.4.zip",
+	"core": "https://wordpress.org/wordpress-6.5.zip",
 	"phpVersion": "8.1",
 	"plugins": [ "https://downloads.wordpress.org/plugin/woocommerce.8.0.0.zip" ]
 }

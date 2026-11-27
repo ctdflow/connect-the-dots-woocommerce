@@ -476,6 +476,10 @@ msgstr "De verbindingspoging is niet geldig of is verlopen. Begin opnieuw met ve
 msgid "The connection attempt is not valid. Start connecting again."
 msgstr "De verbindingspoging is niet geldig. Begin opnieuw met verbinden."
 
+#: src/Connection.php:247
+msgid "The connection with Connect the Dots is being renewed. Try again in a few seconds."
+msgstr "De verbinding met Connect the Dots wordt vernieuwd. Probeer het over een paar seconden opnieuw."
+
 #: src/Connection.php:215
 msgid "Connect the Dots did not register this shop. Try again in a few minutes."
 msgstr "Connect the Dots heeft deze winkel niet geregistreerd. Probeer het over een paar minuten opnieuw."

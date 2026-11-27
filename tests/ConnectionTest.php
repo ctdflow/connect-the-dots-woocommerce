@@ -284,6 +284,92 @@ class ConnectionTest extends TestCase {
 		$this->assertTrue( $connection->isConnected() );
 	}
 
+	public function test_a_refused_refresh_other_than_an_invalid_token_keeps_the_connection(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->ctd->respond( 'POST', '/oauth/token', 400, array( 'error' => 'invalid_request', 'error_description' => 'The request is missing a parameter.', 'message' => 'Missing.' ) );
+
+		$connection = new Connection();
+
+		try {
+			$connection->accessToken();
+			$this->fail( 'The refused refresh was not reported.' );
+		} catch ( ApiError $error ) {
+			$this->assertSame( 'invalid_request', $error->errorCode );
+		}
+
+		$this->assertTrue( $connection->isConnected() );
+		$this->assertSame( 'refresh-1', get_option( 'ctdflow_tokens' )['refresh_token'] );
+	}
+
+	public function test_an_unknown_client_while_refreshing_disconnects_and_forgets_the_client(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->ctd->respond( 'POST', '/oauth/token', 401, array( 'error' => 'invalid_client', 'error_description' => 'Client authentication failed.', 'message' => 'Unknown client.' ) );
+
+		$connection = new Connection();
+
+		try {
+			$connection->accessToken();
+			$this->fail( 'The unknown client was accepted.' );
+		} catch ( ApiError $error ) {
+			$this->assertSame( 'connection_lost', $error->errorCode );
+		}
+
+		$this->assertFalse( $connection->isConnected() );
+		$this->assertFalse( get_option( 'ctdflow_client_id' ) );
+	}
+
+	public function test_a_refresh_releases_its_lock(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->ctd->respond( 'POST', '/oauth/token', 200, $this->tokenResponse( 'access-2', 'refresh-2', 3600 ) );
+
+		( new Connection() )->accessToken();
+
+		$this->assertFalse( get_option( 'ctdflow_refresh_lock' ) );
+	}
+
+	public function test_a_request_that_finds_a_refresh_in_progress_waits_for_its_tokens(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->takeRefreshLock();
+
+		$connection = $this->connectionThatPauses( fn () => $this->storeTokens( 'access-2', 'refresh-2', time() + 3600 ) );
+
+		$this->assertSame( 'access-2', $connection->accessToken() );
+		$this->assertTrue( $connection->isConnected() );
+		$this->assertSame( array(), $this->tokenRequests() );
+	}
+
+	public function test_a_request_that_finds_a_refresh_in_progress_gives_up_after_a_while_and_stays_connected(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->takeRefreshLock();
+
+		$connection = $this->connectionThatPauses( static function (): void {} );
+
+		try {
+			$connection->accessToken();
+			$this->fail( 'The refresh in progress was not reported.' );
+		} catch ( ApiError $error ) {
+			$this->assertSame( 'refresh_in_progress', $error->errorCode );
+			$this->assertSame( 503, $error->status );
+		}
+
+		$this->assertTrue( $connection->isConnected() );
+		$this->assertSame( array(), $this->tokenRequests() );
+	}
+
+	public function test_a_request_that_waited_reports_a_connection_the_other_request_lost(): void {
+		$this->storeTokens( 'access-1', 'refresh-1', time() - 10 );
+		$this->takeRefreshLock();
+
+		$connection = $this->connectionThatPauses( static fn () => delete_option( 'ctdflow_tokens' ) );
+
+		try {
+			$connection->accessToken();
+			$this->fail( 'The lost connection was not reported.' );
+		} catch ( ApiError $error ) {
+			$this->assertSame( 'connection_lost', $error->errorCode );
+		}
+	}
+
 	public function test_disconnect_removes_the_tokens_and_keeps_the_client_id(): void {
 		$this->storeTokens( 'access-1', 'refresh-1', time() + 3600 );
 
@@ -374,6 +460,36 @@ class ConnectionTest extends TestCase {
 		parse_str( (string) wp_parse_url( $connection->authorizeUrl(), PHP_URL_QUERY ), $query );
 
 		return $query;
+	}
+
+	private function takeRefreshLock(): void {
+		add_option( 'ctdflow_refresh_lock', (string) time(), '', false );
+	}
+
+	private function connectionThatPauses( callable $whilePausing ): Connection {
+		return new class( $whilePausing ) extends Connection {
+			/**
+			 * @var callable
+			 */
+			private $whilePausing;
+
+			public function __construct( callable $whilePausing ) {
+				$this->whilePausing = $whilePausing;
+			}
+
+			protected function pause(): void {
+				( $this->whilePausing )();
+			}
+		};
+	}
+
+	private function tokenRequests(): array {
+		return array_values(
+			array_filter(
+				$this->ctd->requests(),
+				static fn ( array $request ): bool => '/oauth/token' === $request['path']
+			)
+		);
 	}
 
 	private function storeTokens( string $access, string $refresh, int $expires_at ): void {

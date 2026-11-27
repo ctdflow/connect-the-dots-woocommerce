@@ -16,6 +16,20 @@ defined( 'ABSPATH' ) || exit;
 class Connection {
 
 	/**
+	 * Seconds after which a refresh lock that was not released is taken over. Longer than the HTTP timeout.
+	 *
+	 * @var int
+	 */
+	private int $refreshLockSeconds = 45;
+
+	/**
+	 * How often a request looks for the tokens another request is refreshing, a quarter second apart.
+	 *
+	 * @var int
+	 */
+	private int $refreshWaitAttempts = 40;
+
+	/**
 	 * Whether the shop is connected, which means it holds a refresh token.
 	 */
 	public function isConnected(): bool {
@@ -130,8 +144,9 @@ class Connection {
 	}
 
 	/**
-	 * Trades the refresh token for new tokens. When Connect the Dots refuses it, the connection is gone
-	 * and the shop is disconnected.
+	 * Trades the refresh token for new tokens, one request at a time. CTD rotates refresh tokens, so
+	 * two requests refreshing at once would make the loser send a token that is already used. A
+	 * request that finds another one refreshing waits for its tokens instead.
 	 *
 	 * @throws ApiError When the tokens cannot be refreshed.
 	 */
@@ -142,6 +157,38 @@ class Connection {
 			throw ApiError::connectionLost();
 		}
 
+		$lock = new OptionLock( 'ctdflow_refresh_lock', $this->refreshLockSeconds );
+
+		if ( ! $lock->acquire() ) {
+			$this->waitForRefresh( $refresh_token );
+
+			return;
+		}
+
+		try {
+			$this->forgetCachedTokens();
+
+			if ( $this->tokens()['refresh_token'] !== $refresh_token ) {
+				$this->guardConnected();
+
+				return;
+			}
+
+			$this->requestNewTokens( $refresh_token );
+		} finally {
+			$lock->release();
+		}
+	}
+
+	/**
+	 * Sends the refresh token to CTD and stores the new tokens. Only an answer that says the token or
+	 * the client is no longer valid disconnects the shop. Any other error leaves the tokens in place.
+	 *
+	 * @param string $refresh_token The refresh token to trade.
+	 *
+	 * @throws ApiError When the tokens cannot be refreshed.
+	 */
+	private function requestNewTokens( string $refresh_token ): void {
 		try {
 			$response = ApiClient::send(
 				'POST',
@@ -155,25 +202,77 @@ class Connection {
 		} catch ( ApiError $error ) {
 			$this->forgetClientWhenUnknown( $error );
 
-			if ( $error->status >= 400 && $error->status < 500 && 429 !== $error->status ) {
-				// CTD rotates refresh tokens. A concurrent request may have rotated this one already,
-				// so look at what is stored now before concluding that the connection is gone.
-				wp_cache_delete( 'ctdflow_tokens', 'options' );
-				wp_cache_delete( 'alloptions', 'options' );
-
-				if ( $this->tokens()['refresh_token'] !== $refresh_token && $this->isConnected() ) {
-					return;
-				}
-
-				$this->disconnect();
-
-				throw ApiError::connectionLost();
+			if ( ! in_array( $error->errorCode, array( 'invalid_grant', 'invalid_client' ), true ) ) {
+				throw $error;
 			}
 
-			throw $error;
+			// A request that took over an expired lock may have rotated the token meanwhile.
+			$this->forgetCachedTokens();
+
+			if ( $this->tokens()['refresh_token'] !== $refresh_token && $this->isConnected() ) {
+				return;
+			}
+
+			$this->disconnect();
+
+			throw ApiError::connectionLost();
 		}
 
 		$this->storeTokens( $response );
+	}
+
+	/**
+	 * Waits until the request that holds the refresh lock stored new tokens.
+	 *
+	 * @param string $refresh_token The refresh token this request started with.
+	 *
+	 * @throws ApiError When no new tokens arrived in time, or the other request lost the connection.
+	 */
+	private function waitForRefresh( string $refresh_token ): void {
+		for ( $attempt = 0; $attempt < $this->refreshWaitAttempts; $attempt++ ) {
+			$this->pause();
+			$this->forgetCachedTokens();
+
+			if ( $this->tokens()['refresh_token'] !== $refresh_token ) {
+				$this->guardConnected();
+
+				return;
+			}
+		}
+
+		throw new ApiError(
+			'refresh_in_progress',
+			503,
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The message is escaped where it is shown.
+			__( 'The connection with Connect the Dots is being renewed. Try again in a few seconds.', 'connect-the-dots' )
+		);
+	}
+
+	/**
+	 * Waits a moment before looking at the tokens again.
+	 */
+	protected function pause(): void {
+		usleep( 250000 );
+	}
+
+	/**
+	 * Throws when the shop holds no tokens any more.
+	 *
+	 * @throws ApiError When the shop is not connected.
+	 */
+	private function guardConnected(): void {
+		if ( ! $this->isConnected() ) {
+			throw ApiError::connectionLost();
+		}
+	}
+
+	/**
+	 * Drops the tokens from the object cache, so they are read as another request stored them.
+	 */
+	private function forgetCachedTokens(): void {
+		wp_cache_delete( 'ctdflow_tokens', 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
 	}
 
 	/**
