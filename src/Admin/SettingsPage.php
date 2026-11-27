@@ -420,6 +420,9 @@ class SettingsPage {
 			case 'succeeded':
 				/* translators: %s: date and time. */
 				return sprintf( __( '%s: planned.', 'connect-the-dots' ), $when );
+			case 'sent':
+				/* translators: %s: date and time. */
+				return sprintf( __( '%s: sent, the routes are not ready yet.', 'connect-the-dots' ), $when );
 			case 'refused':
 				if ( 'already_planned' === $last['code'] ) {
 					/* translators: 1: date and time, 2: delivery date. */

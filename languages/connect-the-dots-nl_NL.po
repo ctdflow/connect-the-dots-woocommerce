@@ -419,6 +419,12 @@ msgstr "Nog niet uitgevoerd."
 msgid "%s: planned."
 msgstr "%s: gepland."
 
+#. translators: %s: date and time.
+#: src/Admin/SettingsPage.php:425
+#, php-format
+msgid "%s: sent, the routes are not ready yet."
+msgstr "%s: verstuurd, de ritten zijn nog niet klaar."
+
 #. translators: 1: date and time, 2: reason code.
 #: src/Admin/SettingsPage.php:408
 #, php-format

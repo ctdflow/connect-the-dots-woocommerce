@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T20:16:22+00:00\n"
+"POT-Creation-Date: 2026-11-27T20:31:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: connect-the-dots\n"
@@ -62,7 +62,7 @@ msgid "Settings"
 msgstr ""
 
 #: src/Admin/Menu.php:305
-#: src/Admin/RoutesPage.php:715
+#: src/Admin/RoutesPage.php:719
 msgid "Sorry, you are not allowed to do this."
 msgstr ""
 
@@ -71,7 +71,7 @@ msgid "Delivery route"
 msgstr ""
 
 #: src/Admin/RoutesPage.php:104
-#: src/Admin/RoutesPage.php:782
+#: src/Admin/RoutesPage.php:786
 msgid "Planning the routes…"
 msgstr ""
 
@@ -99,20 +99,20 @@ msgstr ""
 msgid "This day has not been planned yet."
 msgstr ""
 
-#: src/Admin/RoutesPage.php:337
+#: src/Admin/RoutesPage.php:341
 msgid "The routes below still apply."
 msgstr ""
 
-#: src/Admin/RoutesPage.php:367
+#: src/Admin/RoutesPage.php:371
 msgid "Plan expired. Connect the Dots keeps plans for a limited time. Plan this day again to see its routes."
 msgstr ""
 
-#: src/Admin/RoutesPage.php:380
+#: src/Admin/RoutesPage.php:384
 msgid "Newer plans replaced this plan too many times in a row. Plan this day again to see its routes."
 msgstr ""
 
 #. translators: 1: number of stops left for the day, 2: number of vans in a plan.
-#: src/Admin/RoutesPage.php:501
+#: src/Admin/RoutesPage.php:505
 #, php-format
 msgid "Your free plan has %1$d stops left for this day and plans with %2$d van."
 msgid_plural "Your free plan has %1$d stops left for this day and plans with %2$d vans."
@@ -120,13 +120,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of orders, like "26 orders", 2: number of vans, like "2 vans".
-#: src/Admin/RoutesPage.php:512
+#: src/Admin/RoutesPage.php:516
 #, php-format
 msgid "You chose %1$s and %2$s."
 msgstr ""
 
 #. translators: %d: number of orders.
-#: src/Admin/RoutesPage.php:514
+#: src/Admin/RoutesPage.php:518
 #, php-format
 msgid "%d order"
 msgid_plural "%d orders"
@@ -134,7 +134,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of vans.
-#: src/Admin/RoutesPage.php:516
+#: src/Admin/RoutesPage.php:520
 #, php-format
 msgid "%d van"
 msgid_plural "%d vans"
@@ -142,7 +142,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of stops, 2: number of vans.
-#: src/Admin/RoutesPage.php:523
+#: src/Admin/RoutesPage.php:527
 #, php-format
 msgid "Plan the first %1$d with %2$d van"
 msgid_plural "Plan the first %1$d with %2$d vans"
@@ -150,105 +150,105 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of stops.
-#: src/Admin/RoutesPage.php:526
+#: src/Admin/RoutesPage.php:530
 #, php-format
 msgid "Plan the first %d"
 msgstr ""
 
 #. translators: %d: number of vans.
-#: src/Admin/RoutesPage.php:529
+#: src/Admin/RoutesPage.php:533
 #, php-format
 msgid "Plan with %d van"
 msgid_plural "Plan with %d vans"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/RoutesPage.php:539
+#: src/Admin/RoutesPage.php:543
 msgid "Try a paid plan free for 30 days"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:541
+#: src/Admin/RoutesPage.php:545
 msgid "Choose a paid plan"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:562
+#: src/Admin/RoutesPage.php:566
 #: views/connect.php:62
 msgid "Connect again"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:572
+#: src/Admin/RoutesPage.php:576
 #: src/Admin/SettingsPage.php:189
 #: src/Admin/SettingsPage.php:369
 msgid "See the plans"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:802
+#: src/Admin/RoutesPage.php:806
 msgid "Free"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:804
+#: src/Admin/RoutesPage.php:808
 msgid "Trial"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:806
+#: src/Admin/RoutesPage.php:810
 #: src/Admin/SettingsPage.php:253
 msgid "Active"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:808
+#: src/Admin/RoutesPage.php:812
 msgid "Blocked"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:822
+#: src/Admin/RoutesPage.php:826
 msgid "Address not found"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:824
+#: src/Admin/RoutesPage.php:828
 msgid "Address is ambiguous"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:826
+#: src/Admin/RoutesPage.php:830
 msgid "No road leads to this address. Check the address."
 msgstr ""
 
-#: src/Admin/RoutesPage.php:829
+#: src/Admin/RoutesPage.php:833
 msgid "Reason unknown"
 msgstr ""
 
 #. translators: %s: reason given by the route planner.
-#: src/Admin/RoutesPage.php:832
+#: src/Admin/RoutesPage.php:836
 #, php-format
 msgid "Did not fit in the routes (%s)"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:863
+#: src/Admin/RoutesPage.php:867
 msgid "No delivery address"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:863
+#: src/Admin/RoutesPage.php:867
 msgid "Country not supported"
 msgstr ""
 
 #. translators: 1: start time, 2: end time.
-#: src/Admin/RoutesPage.php:924
+#: src/Admin/RoutesPage.php:928
 #, php-format
 msgid "%1$s to %2$s"
 msgstr ""
 
 #. translators: %d: minutes.
-#: src/Admin/RoutesPage.php:938
+#: src/Admin/RoutesPage.php:942
 #, php-format
 msgid "%d min"
 msgstr ""
 
 #. translators: 1: hours, 2: minutes.
-#: src/Admin/RoutesPage.php:942
+#: src/Admin/RoutesPage.php:946
 #, php-format
 msgid "%1$d h %2$d min"
 msgstr ""
 
 #. translators: %s: distance in kilometres.
-#: src/Admin/RoutesPage.php:954
+#: src/Admin/RoutesPage.php:958
 #, php-format
 msgid "%s km"
 msgstr ""
@@ -445,26 +445,32 @@ msgstr ""
 msgid "%s: planned."
 msgstr ""
 
+#. translators: %s: date and time.
+#: src/Admin/SettingsPage.php:425
+#, php-format
+msgid "%s: sent, the routes are not ready yet."
+msgstr ""
+
 #. translators: 1: date and time, 2: delivery date.
-#: src/Admin/SettingsPage.php:426
+#: src/Admin/SettingsPage.php:429
 #, php-format
 msgid "%1$s: not planned, because %2$s already has routes. Plan that day again on the Routes tab to replace them."
 msgstr ""
 
 #. translators: 1: date and time, 2: delivery date.
-#: src/Admin/SettingsPage.php:431
+#: src/Admin/SettingsPage.php:434
 #, php-format
 msgid "%1$s: not planned, because %2$s already has routes. New orders came in since and are not on them. Plan that day again on the Routes tab to add them."
 msgstr ""
 
 #. translators: 1: date and time, 2: reason code.
-#: src/Admin/SettingsPage.php:435
+#: src/Admin/SettingsPage.php:438
 #, php-format
 msgid "%1$s: not planned (%2$s)."
 msgstr ""
 
 #. translators: 1: date and time, 2: reason code.
-#: src/Admin/SettingsPage.php:438
+#: src/Admin/SettingsPage.php:441
 #, php-format
 msgid "%1$s: failed (%2$s)."
 msgstr ""
@@ -580,7 +586,7 @@ msgstr ""
 msgid "The depot has no address or country. Fill in the depot on the Settings tab."
 msgstr ""
 
-#: src/Plugin.php:181
+#: src/Plugin.php:184
 msgid "Connect the Dots needs WooCommerce. Install and activate WooCommerce to plan delivery routes."
 msgstr ""
 
@@ -590,18 +596,18 @@ msgstr ""
 msgid "Delivery route %1$s, expected arrival %2$s"
 msgstr ""
 
-#: src/ScheduledPlanning.php:311
+#: src/ScheduledPlanning.php:315
 msgid "The shop is not connected to Connect the Dots. Connect it on the Routes tab."
 msgstr ""
 
 #. translators: 1: site name, 2: delivery date.
-#: src/ScheduledPlanning.php:376
+#: src/ScheduledPlanning.php:380
 #, php-format
 msgid "[%1$s] Connect the Dots: new orders for %2$s are not on the routes"
 msgstr ""
 
 #. translators: 1: number of orders, 2: delivery date, 3: link to the Routes screen.
-#: src/ScheduledPlanning.php:382
+#: src/ScheduledPlanning.php:386
 #, php-format
 msgid ""
 "%1$d order for %2$s came in after the routes of that day were planned. The automatic planning left those routes alone, so this order is not on them.\n"
@@ -616,22 +622,22 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ScheduledPlanning.php:446
+#: src/ScheduledPlanning.php:450
 msgid "Newer plans replaced this plan too many times in a row."
 msgstr ""
 
-#: src/ScheduledPlanning.php:478
+#: src/ScheduledPlanning.php:483
 msgid "The plan is not done yet. Open the Routes tab later to see the routes."
 msgstr ""
 
 #. translators: %s: site name.
-#: src/ScheduledPlanning.php:517
+#: src/ScheduledPlanning.php:522
 #, php-format
 msgid "[%s] Connect the Dots could not plan your routes automatically"
 msgstr ""
 
 #. translators: 1: delivery date, 2: reason, 3: link to the Routes screen.
-#: src/ScheduledPlanning.php:522
+#: src/ScheduledPlanning.php:527
 #, php-format
 msgid ""
 "The automatic planning of %1$s did not work.\n"

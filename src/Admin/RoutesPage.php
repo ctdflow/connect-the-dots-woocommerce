@@ -251,6 +251,10 @@ class RoutesPage {
 		$account   = null;
 
 		try {
+			// The free tier decides how many orders go out. A cached tier that is out of date could send
+			// more than it allows, and that starts the trial the owner may just have turned down.
+			Account::forget( $date );
+
 			$account = $this->account->fetch( $date );
 			$tier    = Account::freeTier( $account );
 

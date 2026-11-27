@@ -2,6 +2,7 @@
 
 namespace ConnectTheDots\Tests\Admin;
 
+use ConnectTheDots\Account;
 use ConnectTheDots\Admin\Menu;
 use ConnectTheDots\Admin\RoutesPage;
 use ConnectTheDots\PlanStore;
@@ -199,6 +200,26 @@ class RoutesPageTest extends TestCase {
 		$expected = array_map( static fn ( WC_Order $order ) => (string) $order->get_id(), array_merge( array_slice( $orders, 13 ), array_slice( $orders, 1, 12 ) ) );
 
 		$this->assertSame( $expected, array_column( $this->planBody()['stops'], 'reference' ) );
+	}
+
+	public function test_the_first_choice_reads_the_free_tier_fresh_instead_of_from_the_cache(): void {
+		$this->connect();
+		$this->account();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 10 ) ) );
+		( new Account() )->fetch( $this->tomorrow );
+		$this->settings( array( 'date_source' => 'woo-delivery' ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+
+		$orders = array();
+
+		for ( $i = 0; $i < 26; $i++ ) {
+			$orders[] = $this->order( array( 'delivery_date' => $this->tomorrow ) );
+		}
+
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'first' ) );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertCount( 10, $this->planBody()['stops'] );
 	}
 
 	public function test_the_trial_choice_sends_all_orders(): void {

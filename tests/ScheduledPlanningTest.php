@@ -83,6 +83,15 @@ class ScheduledPlanningTest extends TestCase {
 		$this->assertSame( '06:15', wp_date( 'H:i', $next, new \DateTimeZone( 'America/New_York' ) ) );
 	}
 
+	public function test_changing_the_site_timezone_moves_the_run(): void {
+		$this->settings( array( 'schedule_enabled' => true, 'schedule_time' => '06:15' ) );
+		ScheduledPlanning::schedule();
+
+		update_option( 'timezone_string', 'America/New_York' );
+
+		$this->assertSame( $this->nextLocal( '06:15', 'America/New_York' ), ScheduledPlanning::nextRun() );
+	}
+
 	public function test_a_time_that_has_passed_today_is_scheduled_tomorrow(): void {
 		$this->settings( array( 'schedule_enabled' => true, 'schedule_time' => '00:00' ) );
 
@@ -205,7 +214,7 @@ class ScheduledPlanningTest extends TestCase {
 
 		$last = ScheduledPlanning::lastRun();
 
-		$this->assertSame( 'succeeded', $last['outcome'] );
+		$this->assertSame( 'sent', $last['outcome'] );
 		$this->assertSame( $this->tomorrow(), $last['date'] );
 		$this->assertEqualsWithDelta( $before, $last['time'], 5 );
 		$this->assertFalse( $this->autoload( 'ctdflow_last_scheduled_run' ) );
@@ -648,6 +657,42 @@ class ScheduledPlanningTest extends TestCase {
 		$this->assertSame( 'opt_0', ( new PlanStore() )->get( $this->tomorrow() ) );
 	}
 
+	public function test_applied_routes_count_as_succeeded_and_clear_the_last_failure(): void {
+		$order = $this->order();
+		update_option( 'ctdflow_last_scheduled_run', array( 'time' => time() - DAY_IN_SECONDS, 'outcome' => 'failed', 'code' => 'plan_not_found', 'date' => $this->tomorrow(), 'failure' => 'plan_not_found' ), false );
+		( new PlanStore() )->put( $this->tomorrow(), 'opt_1' );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $this->plan( 'opt_1', 'succeeded', $order ) );
+
+		ScheduledPlanning::create()->apply( $this->tomorrow(), 1 );
+
+		$this->assertSame( 'succeeded', ScheduledPlanning::lastRun()['outcome'] );
+		$this->assertSame( '', ScheduledPlanning::lastRun()['failure'] );
+	}
+
+	public function test_a_failure_of_applying_that_comes_back_after_the_next_plan_was_sent_is_mailed_once(): void {
+		$this->order();
+		$this->account( array( 'NL' ) );
+		( new PlanStore() )->put( $this->tomorrow(), 'opt_1' );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 404, array( 'error' => array( 'type' => 'not_found', 'code' => 'plan_not_found', 'message' => 'Plan not found' ) ) );
+
+		ScheduledPlanning::create()->apply( $this->tomorrow(), 1 );
+
+		delete_option( 'ctdflow_plans' );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+
+		ScheduledPlanning::create()->run();
+
+		$this->assertSame( 'sent', ScheduledPlanning::lastRun()['outcome'] );
+
+		( new PlanStore() )->forgetPending( $this->tomorrow() );
+		( new PlanStore() )->put( $this->tomorrow(), 'opt_1' );
+
+		ScheduledPlanning::create()->apply( $this->tomorrow(), 1 );
+
+		$this->assertSame( 'plan_not_found', ScheduledPlanning::lastRun()['code'] );
+		$this->assertCount( 1, $this->mails );
+	}
+
 	public function test_an_expired_plan_is_mailed(): void {
 		( new PlanStore() )->put( $this->tomorrow(), 'opt_1' );
 		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 404, array( 'error' => array( 'type' => 'not_found', 'code' => 'plan_not_found', 'message' => 'Plan not found' ) ) );
@@ -733,6 +778,13 @@ class ScheduledPlanningTest extends TestCase {
 		$this->assertStringContainsString( 'Last automatic run', $html );
 		$this->assertStringContainsString( '2026-12-23 18:00', $html );
 		$this->assertStringContainsString( 'routing_unavailable', $html );
+	}
+
+	public function test_the_settings_tab_says_a_sent_plan_is_not_ready_yet(): void {
+		$this->account( array( 'NL' ), $this->tomorrow(), true );
+		update_option( 'ctdflow_last_scheduled_run', array( 'time' => strtotime( '2026-12-23 17:00:00 UTC' ), 'outcome' => 'sent', 'code' => '', 'date' => '2026-12-24' ), false );
+
+		$this->assertStringContainsString( '2026-12-23 18:00: sent, the routes are not ready yet.', $this->settingsTab() );
 	}
 
 	public function test_the_settings_tab_explains_that_a_planned_day_was_left_alone(): void {

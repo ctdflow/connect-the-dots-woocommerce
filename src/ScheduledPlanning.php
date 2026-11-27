@@ -218,7 +218,10 @@ class ScheduledPlanning {
 	/**
 	 * The time and outcome of the last run, null when it never ran.
 	 *
-	 * @return array{time: int, outcome: string, code: string, date: string}|null
+	 * The failure is the code of the last failure that was mailed. Only a run whose routes were applied
+	 * clears it, so a failure that comes back after the plan phase succeeded is not mailed again.
+	 *
+	 * @return array{time: int, outcome: string, code: string, date: string, failure: string}|null
 	 */
 	public static function lastRun(): ?array {
 		$last = get_option( self::LAST_RUN_OPTION );
@@ -232,6 +235,7 @@ class ScheduledPlanning {
 			'outcome' => (string) ( $last['outcome'] ?? '' ),
 			'code'    => (string) ( $last['code'] ?? '' ),
 			'date'    => (string) ( $last['date'] ?? '' ),
+			'failure' => (string) ( $last['failure'] ?? '' ),
 		);
 	}
 
@@ -257,7 +261,7 @@ class ScheduledPlanning {
 
 	/**
 	 * Plans the day, with all active vans, exactly like the Plan button, and schedules the application of
-	 * the result. Never throws: a failure is mailed to the shop admin and stored. The lock is kept for
+	 * the result. The run counts as sent until the routes were applied. Never throws: a failure is mailed to the shop admin and stored. The lock is kept for
 	 * its full time, so a second run right after it plans nothing.
 	 *
 	 * @param string $date Day to plan as Y-m-d, today plus the day offset when empty.
@@ -349,7 +353,7 @@ class ScheduledPlanning {
 			return;
 		}
 
-		$this->record( 'succeeded', '', $date );
+		$this->record( 'sent', '', $date );
 		$this->scheduleApply( $date, 1 );
 	}
 
@@ -461,6 +465,7 @@ class ScheduledPlanning {
 		}
 
 		$this->applier->apply( $plan );
+		$this->record( 'succeeded', '', $date );
 	}
 
 	/**
@@ -501,10 +506,10 @@ class ScheduledPlanning {
 	private function fail( string $date, string $outcome, string $code, string $reason ): void {
 		$previous = self::lastRun();
 
-		$this->record( $outcome, $code, $date );
+		$this->record( $outcome, $code, $date, $code );
 
-		// A failure that repeats every day is mailed once.
-		if ( null !== $previous && $previous['code'] === $code ) {
+		// A failure that repeats every day is mailed once, also when the plan phase succeeded in between.
+		if ( null !== $previous && $previous['failure'] === $code ) {
 			return;
 		}
 
@@ -528,13 +533,19 @@ class ScheduledPlanning {
 	}
 
 	/**
-	 * Stores when the last run happened and how it ended.
+	 * Stores when the last run happened and how it ended. The last mailed failure is kept until the
+	 * routes of a run were applied.
 	 *
-	 * @param string $outcome succeeded, refused or failed.
-	 * @param string $code    Stable code of the failure, empty on success.
-	 * @param string $date    Delivery date as Y-m-d.
+	 * @param string      $outcome sent, succeeded, refused or failed.
+	 * @param string      $code    Stable code of the failure, empty on success.
+	 * @param string      $date    Delivery date as Y-m-d.
+	 * @param string|null $failure Code of the failure that was mailed, null to keep the previous one.
 	 */
-	private function record( string $outcome, string $code, string $date ): void {
+	private function record( string $outcome, string $code, string $date, ?string $failure = null ): void {
+		if ( null === $failure ) {
+			$failure = 'succeeded' === $outcome ? '' : ( self::lastRun()['failure'] ?? '' );
+		}
+
 		update_option(
 			self::LAST_RUN_OPTION,
 			array(
@@ -542,6 +553,7 @@ class ScheduledPlanning {
 				'outcome' => $outcome,
 				'code'    => $code,
 				'date'    => $date,
+				'failure' => $failure,
 			),
 			false
 		);

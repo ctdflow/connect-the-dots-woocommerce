@@ -108,6 +108,9 @@ class Plugin {
 		add_action( 'init', array( ScheduledPlanning::class, 'ensureScheduled' ) );
 		add_action( 'add_option_' . Settings::OPTION, array( ScheduledPlanning::class, 'schedule' ) );
 		add_action( 'update_option_' . Settings::OPTION, array( ScheduledPlanning::class, 'settingsChanged' ), 10, 2 );
+		// The run is due at a time in the site timezone, so a new timezone moves it.
+		add_action( 'update_option_timezone_string', array( ScheduledPlanning::class, 'schedule' ), 10, 0 );
+		add_action( 'update_option_gmt_offset', array( ScheduledPlanning::class, 'schedule' ), 10, 0 );
 	}
 
 	/**
