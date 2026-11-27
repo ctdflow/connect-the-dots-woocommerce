@@ -536,6 +536,32 @@ class RoutesPageTest extends TestCase {
 		$this->assertStringContainsString( 'Planning took too long', $this->renderedPage() );
 	}
 
+	/**
+	 * @dataProvider plannerReasons
+	 */
+	public function test_a_stop_that_did_not_fit_shows_why( string $reason, string $text ): void {
+		$this->connect();
+		$orders = $this->orders( 2 );
+		( new PlanStore() )->putPending( $this->tomorrow, 'opt_1' );
+		$plan              = $this->succeeded( $orders[0], $orders[1] );
+		$plan['unplanned'] = array( array( 'reference' => (string) $orders[1]->get_id(), 'reason' => $reason ) );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $plan );
+
+		$html = $this->ajax( 'handleStatus', $this->statusRequest() )['data']['html'];
+
+		$this->assertStringContainsString( $text, $html );
+	}
+
+	public static function plannerReasons(): array {
+		return array(
+			'skill'       => array( 'skill_missing', 'No van has what this stop needs' ),
+			'capacity'    => array( 'capacity_exceeded', 'Larger than what any van can carry' ),
+			'time window' => array( 'time_window', 'No van can reach the time window within its working hours' ),
+			'routes full' => array( 'routes_full', 'Did not fit: the vans are full or out of time.' ),
+			'new reason'  => array( 'some_new_reason', 'Did not fit in the routes (some_new_reason)' ),
+		);
+	}
+
 	public function test_a_stop_that_cannot_be_reached_by_road_is_listed_as_not_planned(): void {
 		$this->connect();
 		$orders = $this->orders( 2 );

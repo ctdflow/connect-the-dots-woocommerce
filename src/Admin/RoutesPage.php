@@ -888,6 +888,14 @@ class RoutesPage {
 				return __( 'Address is ambiguous', 'connect-the-dots' );
 			case 'location_unreachable':
 				return __( 'No road leads to this address. Check the address.', 'connect-the-dots' );
+			case 'skill_missing':
+				return __( 'No van has what this stop needs', 'connect-the-dots' );
+			case 'capacity_exceeded':
+				return __( 'Larger than what any van can carry', 'connect-the-dots' );
+			case 'time_window':
+				return __( 'No van can reach the time window within its working hours', 'connect-the-dots' );
+			case 'routes_full':
+				return __( 'Did not fit: the vans are full or out of time. Add a van or plan fewer stops.', 'connect-the-dots' );
 			case '':
 			case 'unknown':
 				return __( 'Reason unknown', 'connect-the-dots' );

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T20:50:29+00:00\n"
+"POT-Creation-Date: 2026-11-27T21:09:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: connect-the-dots\n"
@@ -223,44 +223,60 @@ msgstr ""
 msgid "No road leads to this address. Check the address."
 msgstr ""
 
-#: src/Admin/RoutesPage.php:893
+#: src/Admin/RoutesPage.php:892
+msgid "No van has what this stop needs"
+msgstr ""
+
+#: src/Admin/RoutesPage.php:894
+msgid "Larger than what any van can carry"
+msgstr ""
+
+#: src/Admin/RoutesPage.php:896
+msgid "No van can reach the time window within its working hours"
+msgstr ""
+
+#: src/Admin/RoutesPage.php:898
+msgid "Did not fit: the vans are full or out of time. Add a van or plan fewer stops."
+msgstr ""
+
+#: src/Admin/RoutesPage.php:901
 msgid "Reason unknown"
 msgstr ""
 
 #. translators: %s: reason given by the route planner.
-#: src/Admin/RoutesPage.php:896
+#: src/Admin/RoutesPage.php:904
 #, php-format
 msgid "Did not fit in the routes (%s)"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:927
+#: src/Admin/RoutesPage.php:935
 msgid "No delivery address"
 msgstr ""
 
-#: src/Admin/RoutesPage.php:927
+#: src/Admin/RoutesPage.php:935
 msgid "Country not supported"
 msgstr ""
 
 #. translators: 1: start time, 2: end time.
-#: src/Admin/RoutesPage.php:988
+#: src/Admin/RoutesPage.php:996
 #, php-format
 msgid "%1$s to %2$s"
 msgstr ""
 
 #. translators: %d: minutes.
-#: src/Admin/RoutesPage.php:1002
+#: src/Admin/RoutesPage.php:1010
 #, php-format
 msgid "%d min"
 msgstr ""
 
 #. translators: 1: hours, 2: minutes.
-#: src/Admin/RoutesPage.php:1006
+#: src/Admin/RoutesPage.php:1014
 #, php-format
 msgid "%1$d h %2$d min"
 msgstr ""
 
 #. translators: %s: distance in kilometres.
-#: src/Admin/RoutesPage.php:1018
+#: src/Admin/RoutesPage.php:1026
 #, php-format
 msgid "%s km"
 msgstr ""

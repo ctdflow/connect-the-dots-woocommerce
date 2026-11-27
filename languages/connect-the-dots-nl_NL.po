@@ -944,3 +944,15 @@ msgstr "De werktijden van alle bussen zijn voorbij voor vandaag. Plan een andere
 
 msgid "The driver undid the delivery"
 msgstr "De chauffeur heeft de levering ongedaan gemaakt"
+
+msgid "No van has what this stop needs"
+msgstr "Geen bus heeft wat deze stop nodig heeft"
+
+msgid "Larger than what any van can carry"
+msgstr "Groter dan wat een bus kan meenemen"
+
+msgid "No van can reach the time window within its working hours"
+msgstr "Geen bus haalt het tijdvak binnen zijn werktijden"
+
+msgid "Did not fit: the vans are full or out of time. Add a van or plan fewer stops."
+msgstr "Paste niet: de bussen zijn vol of hebben geen tijd meer. Voeg een bus toe of plan minder stops."
