@@ -555,6 +555,34 @@ msgid "The plan is not done yet. Open the Routes tab later to see the routes."
 msgstr "De planning is nog niet klaar. Open later het tabblad Ritten om de ritten te zien."
 
 #. translators: %s: site name.
+#: src/ScheduledPlanning.php:376
+#, php-format
+msgid "[%1$s] Connect the Dots: new orders for %2$s are not on the routes"
+msgstr "[%1$s] Connect the Dots: nieuwe bestellingen voor %2$s staan niet op de ritten"
+
+#: src/ScheduledPlanning.php:382
+#, php-format
+msgid ""
+"%1$d order for %2$s came in after the routes of that day were planned. The automatic planning left those routes alone, so this order is not on them.\n"
+"\n"
+"Open the Routes screen and plan the day again to add it:\n"
+"%3$s"
+msgid_plural ""
+"%1$d orders for %2$s came in after the routes of that day were planned. The automatic planning left those routes alone, so these orders are not on them.\n"
+"\n"
+"Open the Routes screen and plan the day again to add them:\n"
+"%3$s"
+msgstr[0] ""
+"%1$d bestelling voor %2$s is binnengekomen nadat de ritten van die dag waren gepland. Het automatisch plannen heeft die ritten laten staan, dus deze bestelling staat er niet op.\n"
+"\n"
+"Open het scherm Ritten en plan de dag opnieuw om die toe te voegen:\n"
+"%3$s"
+msgstr[1] ""
+"%1$d bestellingen voor %2$s zijn binnengekomen nadat de ritten van die dag waren gepland. Het automatisch plannen heeft die ritten laten staan, dus deze bestellingen staan er niet op.\n"
+"\n"
+"Open het scherm Ritten en plan de dag opnieuw om ze toe te voegen:\n"
+"%3$s"
+
 #: src/ScheduledPlanning.php:445
 #, php-format
 msgid "[%s] Connect the Dots could not plan your routes automatically"
@@ -884,6 +912,11 @@ msgstr "WooCommerce stuurt de klant de e-mail van die status, Afgerond stuurt bi
 #, php-format
 msgid "%1$s: not planned, because %2$s already has routes. Plan that day again on the Routes tab to replace them."
 msgstr "%1$s: niet gepland, omdat %2$s al ritten heeft. Plan die dag opnieuw op het tabblad Ritten om ze te vervangen."
+
+#: src/Admin/SettingsPage.php:431
+#, php-format
+msgid "%1$s: not planned, because %2$s already has routes. New orders came in since and are not on them. Plan that day again on the Routes tab to add them."
+msgstr "%1$s: niet gepland, omdat %2$s al ritten heeft. Daarna zijn er nieuwe bestellingen binnengekomen die niet op de ritten staan. Plan die dag opnieuw op het tabblad Ritten om ze toe te voegen."
 
 #: src/Admin/SettingsPage.php:309
 msgid "Plan orders with shipping method"

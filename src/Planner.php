@@ -60,7 +60,8 @@ class Planner {
 	 * @throws ApiError When Connect the Dots refuses the plan or cannot be reached.
 	 */
 	public function plan( string $date, array $orderIds, array $vehicleIds, string $trigger, ?array $supportedCountries = null ): array {
-		$orders = $this->plannable( $date, $orderIds, $supportedCountries );
+		$day    = $this->selection->forDay( $date, array_map( 'intval', $orderIds ), array(), $supportedCountries );
+		$orders = $this->chosen( $day['plannable'], $orderIds );
 
 		if ( array() === $orders ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The message is escaped where it is shown.
@@ -97,6 +98,10 @@ class Planner {
 
 		if ( isset( $result['plan_id'] ) && is_string( $result['plan_id'] ) && '' !== $result['plan_id'] ) {
 			$this->store->putPending( $date, $result['plan_id'] );
+			$this->store->putSeenOrders(
+				$date,
+				array_map( static fn( SelectedOrder $selected ): int => $selected->order->get_id(), array_merge( $day['plannable'], $day['unplannable'] ) )
+			);
 		}
 
 		Account::forget( $date );
@@ -142,6 +147,18 @@ class Planner {
 	 * @return SelectedOrder[]
 	 */
 	private function plannable( string $date, array $orderIds, ?array $supportedCountries = null ): array {
+		return $this->chosen( $this->selection->forDay( $date, array_map( 'intval', $orderIds ), array(), $supportedCountries )['plannable'], $orderIds );
+	}
+
+	/**
+	 * The chosen orders among the plannable orders of a day, in the order they were chosen.
+	 *
+	 * @param SelectedOrder[] $plannable The plannable orders of the day.
+	 * @param int[]           $orderIds  Orders to choose.
+	 *
+	 * @return SelectedOrder[]
+	 */
+	private function chosen( array $plannable, array $orderIds ): array {
 		$ids = array_map( 'intval', $orderIds );
 
 		if ( array() === $ids ) {
@@ -151,7 +168,7 @@ class Planner {
 		$position = array_flip( array_values( array_unique( $ids ) ) );
 		$orders   = array_values(
 			array_filter(
-				$this->selection->forDay( $date, $ids, array(), $supportedCountries )['plannable'],
+				$plannable,
 				static fn( SelectedOrder $selected ): bool => isset( $position[ $selected->order->get_id() ] )
 			)
 		);

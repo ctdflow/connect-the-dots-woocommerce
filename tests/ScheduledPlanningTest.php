@@ -345,6 +345,53 @@ class ScheduledPlanningTest extends TestCase {
 		$this->assertFalse( as_next_scheduled_action( 'ctdflow_apply_scheduled', array( $this->tomorrow(), 1 ), 'connect-the-dots' ) );
 	}
 
+	public function test_orders_that_came_in_after_a_day_was_planned_are_mailed_and_the_plan_stays(): void {
+		$planned = $this->order();
+		$store   = new PlanStore();
+		$store->put( $this->tomorrow(), 'opt_by_hand' );
+		$store->putSeenOrders( $this->tomorrow(), array( $planned->get_id() ) );
+		$this->order();
+		$this->order();
+
+		ScheduledPlanning::create()->run();
+
+		$this->assertSame( array(), $this->ctd->requests() );
+		$this->assertSame( 'opt_by_hand', ( new PlanStore() )->get( $this->tomorrow() ) );
+		$this->assertSame( 'refused', ScheduledPlanning::lastRun()['outcome'] );
+		$this->assertSame( 'new_orders', ScheduledPlanning::lastRun()['code'] );
+		$this->assertCount( 1, $this->mails );
+		$this->assertSame( 'owner@example.com', $this->mails[0]['to'] );
+		$this->assertStringContainsString( 'Connect the Dots: new orders for ' . $this->tomorrow() . ' are not on the routes', $this->mails[0]['subject'] );
+		$this->assertStringContainsString( '2 orders for ' . $this->tomorrow() . ' came in after the routes of that day were planned.', $this->mails[0]['message'] );
+		$this->assertStringContainsString( admin_url( 'admin.php?page=ctdflow-delivery-routes&date=' . $this->tomorrow() ), $this->mails[0]['message'] );
+	}
+
+	public function test_orders_left_out_on_purpose_are_not_mailed_as_new(): void {
+		$planned  = $this->order();
+		$left_out = $this->order();
+		$store    = new PlanStore();
+		$store->put( $this->tomorrow(), 'opt_by_hand' );
+		$store->putSeenOrders( $this->tomorrow(), array( $planned->get_id(), $left_out->get_id() ) );
+
+		ScheduledPlanning::create()->run();
+
+		$this->assertSame( array(), $this->mails );
+		$this->assertSame( 'already_planned', ScheduledPlanning::lastRun()['code'] );
+	}
+
+	public function test_new_orders_are_also_mailed_when_the_plan_of_the_day_is_still_pending(): void {
+		$store = new PlanStore();
+		$store->putPending( $this->tomorrow(), 'opt_sent' );
+		$store->putSeenOrders( $this->tomorrow(), array() );
+		$this->order();
+
+		ScheduledPlanning::create()->run();
+
+		$this->assertSame( array(), $this->ctd->requests() );
+		$this->assertCount( 1, $this->mails );
+		$this->assertStringContainsString( '1 order for ' . $this->tomorrow() . ' came in', $this->mails[0]['message'] );
+	}
+
 	public function test_a_day_with_a_pending_plan_is_not_planned_again(): void {
 		$this->order();
 		( new PlanStore() )->putPending( $this->tomorrow(), 'opt_sent' );
@@ -695,6 +742,15 @@ class ScheduledPlanningTest extends TestCase {
 		$html = $this->settingsTab();
 
 		$this->assertStringContainsString( '2026-12-23 18:00: not planned, because 2026-12-24 already has routes. Plan that day again on the Routes tab to replace them.', $html );
+	}
+
+	public function test_the_settings_tab_explains_that_new_orders_are_not_on_the_routes(): void {
+		$this->account( array( 'NL' ), $this->tomorrow(), true );
+		update_option( 'ctdflow_last_scheduled_run', array( 'time' => strtotime( '2026-12-23 17:00:00 UTC' ), 'outcome' => 'refused', 'code' => 'new_orders', 'date' => '2026-12-24' ), false );
+
+		$html = $this->settingsTab();
+
+		$this->assertStringContainsString( '2026-12-23 18:00: not planned, because 2026-12-24 already has routes. New orders came in since and are not on them. Plan that day again on the Routes tab to add them.', $html );
 	}
 
 	public function test_the_settings_tab_says_when_it_never_ran(): void {

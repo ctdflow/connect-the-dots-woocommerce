@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Runs from Action Scheduler at the chosen time: plans the day exactly like the Plan button, applies the
  * result a few minutes later and mails the shop admin when something goes wrong. A day that already
- * has a plan is left alone.
+ * has a plan is left alone, and the shop admin is mailed when orders came in after it was planned.
  */
 class ScheduledPlanning {
 
@@ -314,7 +314,7 @@ class ScheduledPlanning {
 
 		// A plan made by hand, or one still on its way, is never replaced by the schedule.
 		if ( null !== $this->store->get( $date ) || null !== $this->store->pending( $date ) ) {
-			$this->record( 'refused', 'already_planned', $date );
+			$this->leaveAlone( $date );
 			return;
 		}
 
@@ -351,6 +351,66 @@ class ScheduledPlanning {
 
 		$this->record( 'succeeded', '', $date );
 		$this->scheduleApply( $date, 1 );
+	}
+
+	/**
+	 * Leaves a planned day alone. When orders came in after it was planned, the shop admin hears that
+	 * they are not on the routes, because nobody else will tell.
+	 *
+	 * @param string $date Delivery date as Y-m-d.
+	 */
+	private function leaveAlone( string $date ): void {
+		$new_orders = $this->newOrders( $date );
+
+		if ( 0 === $new_orders ) {
+			$this->record( 'refused', 'already_planned', $date );
+			return;
+		}
+
+		$this->record( 'refused', 'new_orders', $date );
+
+		wp_mail(
+			(string) get_option( 'admin_email' ),
+			sprintf(
+				/* translators: 1: site name, 2: delivery date. */
+				__( '[%1$s] Connect the Dots: new orders for %2$s are not on the routes', 'connect-the-dots' ),
+				wp_specialchars_decode( (string) get_option( 'blogname' ), ENT_QUOTES ),
+				$date
+			),
+			sprintf(
+				/* translators: 1: number of orders, 2: delivery date, 3: link to the Routes screen. */
+				_n(
+					"%1\$d order for %2\$s came in after the routes of that day were planned. The automatic planning left those routes alone, so this order is not on them.\n\nOpen the Routes screen and plan the day again to add it:\n%3\$s",
+					"%1\$d orders for %2\$s came in after the routes of that day were planned. The automatic planning left those routes alone, so these orders are not on them.\n\nOpen the Routes screen and plan the day again to add them:\n%3\$s",
+					$new_orders,
+					'connect-the-dots'
+				),
+				$new_orders,
+				$date,
+				admin_url( 'admin.php?page=ctdflow-delivery-routes&date=' . rawurlencode( $date ) )
+			)
+		);
+	}
+
+	/**
+	 * The number of orders of a day that can be planned now and could not be chosen when the day was
+	 * planned. Zero when it is not known what could be chosen then.
+	 *
+	 * @param string $date Delivery date as Y-m-d.
+	 */
+	private function newOrders( string $date ): int {
+		$seen = $this->store->seenOrders( $date );
+
+		if ( null === $seen ) {
+			return 0;
+		}
+
+		$plannable = array_map(
+			static fn( SelectedOrder $selected ): int => $selected->order->get_id(),
+			$this->selection->forDay( $date )['plannable']
+		);
+
+		return count( array_diff( $plannable, $seen ) );
 	}
 
 	/**

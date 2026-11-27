@@ -68,6 +68,32 @@ class PlannerTest extends TestCase {
 		$this->assertSame( array( 'Van A', 'Van B' ), array_column( $body['vehicles'], 'name' ) );
 	}
 
+	public function test_a_plan_remembers_every_order_that_could_be_chosen_also_the_ones_left_out(): void {
+		$chosen   = $this->order();
+		$left_out = $this->order();
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+
+		Planner::create()->plan( $this->day, array( $chosen->get_id() ), array( 'van-a' ), 'manual' );
+
+		$seen = ( new PlanStore() )->seenOrders( $this->day );
+		sort( $seen );
+
+		$this->assertSame( array( $chosen->get_id(), $left_out->get_id() ), $seen );
+	}
+
+	public function test_the_plan_store_keeps_seen_orders_for_the_last_30_days(): void {
+		$store = new PlanStore();
+		$today = new \DateTimeImmutable( 'today', wp_timezone() );
+		$old   = $today->modify( '-31 days' )->format( 'Y-m-d' );
+
+		$store->putSeenOrders( $old, array( 1 ) );
+		$store->putSeenOrders( $today->format( 'Y-m-d' ), array( 2, 3, 3 ) );
+
+		$this->assertNull( $store->seenOrders( $old ) );
+		$this->assertSame( array( 2, 3 ), $store->seenOrders( $today->format( 'Y-m-d' ) ) );
+		$this->assertNull( $store->seenOrders( '2020-01-01' ) );
+	}
+
 	public function test_no_plannable_orders_is_refused_without_a_request(): void {
 		$without_address = wc_create_order();
 		$without_address->set_status( 'processing' );

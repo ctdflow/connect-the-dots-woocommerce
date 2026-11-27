@@ -25,7 +25,7 @@ Use it for local delivery with your own vans, bikes or cars. It works with the o
 * Adds a Delivery route column to the order list, so you see the van and the arrival time of every order.
 * Gives every van a link for the driver. The driver opens it on a phone, sees the stops in order, taps Navigate to open the navigation app and ticks off every delivery. No app and no login are needed.
 * Adds an order note with the van and the expected arrival, and a note when the order is delivered. Changing the order status is optional and off by default.
-* Plans the next day automatically at a time you choose (paid plans), and leaves a day alone that you already planned yourself.
+* Plans the next day automatically at a time you choose (paid plans), and leaves a day alone that you already planned yourself. When orders came in after you planned that day, it mails you that they are not on the routes.
 * Works with High-Performance Order Storage.
 
 The plugin is available in English and Dutch.

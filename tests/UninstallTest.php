@@ -14,8 +14,10 @@ class UninstallTest extends TestCase {
 		'ctdflow_plans',
 		'ctdflow_pending_plans',
 		'ctdflow_applied_plans',
+		'ctdflow_seen_orders',
 		'ctdflow_last_scheduled_run',
 		'ctdflow_scheduled_lock',
+		'ctdflow_refresh_lock',
 		'ctdflow_account_generation',
 	);
 

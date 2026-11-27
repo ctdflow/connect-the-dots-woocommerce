@@ -14,7 +14,8 @@ defined( 'ABSPATH' ) || exit;
  * ctdflow_plans, which is the last plan that succeeded and whose routes apply, the pending plan in the
  * option ctdflow_pending_plans, which was sent and did not succeed yet, and the plan that was last
  * written onto the orders in the option ctdflow_applied_plans. A pending plan only becomes the current
- * plan once it succeeded, so a failed plan never hides routes that still apply.
+ * plan once it succeeded, so a failed plan never hides routes that still apply. Beside the plans it
+ * keeps the orders the planner could choose from, so a later run can tell which orders are new.
  */
 class PlanStore {
 
@@ -38,6 +39,13 @@ class PlanStore {
 	 * @var string
 	 */
 	private string $appliedOption = 'ctdflow_applied_plans';
+
+	/**
+	 * Name of the option with the orders that could be planned when a day was planned, by date.
+	 *
+	 * @var string
+	 */
+	private string $seenOrdersOption = 'ctdflow_seen_orders';
 
 	/**
 	 * Number of days before today that plans are kept for.
@@ -117,6 +125,50 @@ class PlanStore {
 	}
 
 	/**
+	 * Remembers the orders of a day that the planner could choose from when the day was planned, both
+	 * the ones that were sent and the ones that were left out on purpose.
+	 *
+	 * @param string $date     Delivery date as Y-m-d.
+	 * @param int[]  $orderIds Order ids.
+	 */
+	public function putSeenOrders( string $date, array $orderIds ): void {
+		$seen          = $this->withoutOldDays( $this->allSeenOrders() );
+		$seen[ $date ] = array_values( array_unique( array_map( 'intval', $orderIds ) ) );
+
+		ksort( $seen );
+
+		update_option( $this->seenOrdersOption, $seen, false );
+	}
+
+	/**
+	 * The orders of a day that could be chosen when the day was last planned, null when that is not known.
+	 *
+	 * @param string $date Delivery date as Y-m-d.
+	 *
+	 * @return int[]|null
+	 */
+	public function seenOrders( string $date ): ?array {
+		$seen = $this->allSeenOrders();
+
+		return isset( $seen[ $date ] ) ? $seen[ $date ] : null;
+	}
+
+	/**
+	 * The stored seen orders, date to order ids.
+	 *
+	 * @return array<string, int[]>
+	 */
+	private function allSeenOrders(): array {
+		$seen = get_option( $this->seenOrdersOption, array() );
+
+		if ( ! is_array( $seen ) ) {
+			return array();
+		}
+
+		return array_map( static fn( $ids ): array => array_map( 'intval', (array) $ids ), $seen );
+	}
+
+	/**
 	 * The current plans of a day and every later day, date to plan id, by date.
 	 *
 	 * @param string $date First delivery date as Y-m-d.
@@ -145,17 +197,28 @@ class PlanStore {
 	private function write( string $option, string $date, string $planId ): void {
 		$plans          = $this->all( $option );
 		$plans[ $date ] = $planId;
-		$oldest         = ( new \DateTimeImmutable( 'today', wp_timezone() ) )->modify( '-' . $this->keepDays . ' days' )->format( 'Y-m-d' );
-
-		$plans = array_filter(
-			$plans,
-			static fn( string $day ): bool => $day >= $oldest,
-			ARRAY_FILTER_USE_KEY
-		);
+		$plans          = $this->withoutOldDays( $plans );
 
 		ksort( $plans );
 
 		update_option( $option, $plans, false );
+	}
+
+	/**
+	 * Leaves out the days more than 30 days before today.
+	 *
+	 * @param array<string, mixed> $days Values by date as Y-m-d.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function withoutOldDays( array $days ): array {
+		$oldest = ( new \DateTimeImmutable( 'today', wp_timezone() ) )->modify( '-' . $this->keepDays . ' days' )->format( 'Y-m-d' );
+
+		return array_filter(
+			$days,
+			static fn( $day ): bool => (string) $day >= $oldest,
+			ARRAY_FILTER_USE_KEY
+		);
 	}
 
 	/**

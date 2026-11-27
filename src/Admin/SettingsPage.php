@@ -426,6 +426,11 @@ class SettingsPage {
 					return sprintf( __( '%1$s: not planned, because %2$s already has routes. Plan that day again on the Routes tab to replace them.', 'connect-the-dots' ), $when, $last['date'] );
 				}
 
+				if ( 'new_orders' === $last['code'] ) {
+					/* translators: 1: date and time, 2: delivery date. */
+					return sprintf( __( '%1$s: not planned, because %2$s already has routes. New orders came in since and are not on them. Plan that day again on the Routes tab to add them.', 'connect-the-dots' ), $when, $last['date'] );
+				}
+
 				/* translators: 1: date and time, 2: reason code. */
 				return sprintf( __( '%1$s: not planned (%2$s).', 'connect-the-dots' ), $when, $last['code'] );
 			default:
