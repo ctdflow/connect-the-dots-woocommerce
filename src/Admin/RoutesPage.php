@@ -164,7 +164,7 @@ class RoutesPage {
 		$ctdflow_account       = $account;
 		$ctdflow_account_error = $account_error;
 		$ctdflow_plan_label    = null === $account ? '' : $this->planLabel( (string) ( $account['billing_status'] ?? '' ) );
-		$ctdflow_tier          = $tier;
+		$ctdflow_tier_html     = $this->tierHtml( $tier );
 		$ctdflow_orders        = array_map( array( $this, 'orderRow' ), $selection['plannable'] );
 		$ctdflow_unplannable   = array_map( array( $this, 'unplannableRow' ), $selection['unplannable'] );
 		$ctdflow_delivered     = $selection['delivered'];
@@ -249,6 +249,7 @@ class RoutesPage {
 			'vehicle_ids' => $vehicleIds,
 		);
 		$account   = null;
+		$left_out  = array();
 
 		try {
 			// The free tier decides how many orders go out. A cached tier that is out of date could send
@@ -268,7 +269,9 @@ class RoutesPage {
 
 				if ( 'first' === $choice ) {
 					if ( count( $orderIds ) > $tier['remaining_stops'] ) {
+						$chosen   = array_map( 'intval', $orderIds );
 						$orderIds = $this->planner->firstOrders( $date, $orderIds, $tier['remaining_stops'] );
+						$left_out = array_values( array_diff( $chosen, $orderIds ) );
 					}
 
 					$vehicleIds = array_slice( $vans, 0, max( 1, $tier['max_vehicles'] ) );
@@ -290,13 +293,63 @@ class RoutesPage {
 			return $this->failure( $error->errorCode, $this->errorHtml( $error, $account, $keep ), $selection );
 		}
 
+		$plan_id = (string) ( $result['plan_id'] ?? '' );
+
+		$this->store->putLeftOut( $date, $plan_id, $left_out );
+
 		return array(
 			'success' => true,
 			'data'    => array(
-				'plan_id' => (string) ( $result['plan_id'] ?? '' ),
+				'plan_id' => $plan_id,
 				'status'  => (string) ( $result['status'] ?? 'queued' ),
 				'html'    => $this->pendingHtml(),
-			),
+			) + $this->accountAfterPlanning( $date ),
+		);
+	}
+
+	/**
+	 * The plan label and free plan line after planning, which may have started a trial. Empty when the
+	 * account cannot be read, so the screen keeps what it shows.
+	 *
+	 * @param string $date Delivery date as Y-m-d.
+	 *
+	 * @return array{plan_label?: string, tier_html?: string}
+	 */
+	private function accountAfterPlanning( string $date ): array {
+		try {
+			$account = $this->account->fetch( $date );
+		} catch ( ApiError $error ) {
+			unset( $error );
+
+			return array();
+		}
+
+		return array(
+			'plan_label' => $this->planLabel( (string) ( $account['billing_status'] ?? '' ) ),
+			'tier_html'  => $this->tierHtml( Account::freeTier( $account ) ),
+		);
+	}
+
+	/**
+	 * The line about the free plan, empty on a paid plan.
+	 *
+	 * @param array{max_vehicles: int, max_stops: int, remaining_stops: int}|null $tier The free tier.
+	 */
+	private function tierHtml( ?array $tier ): string {
+		if ( null === $tier ) {
+			return '';
+		}
+
+		return sprintf(
+			'<p class="description">%s</p>',
+			esc_html(
+				sprintf(
+					/* translators: 1: stops a plan of this day can have, 2: vans per plan. */
+					_n( 'Free plan: plans of up to %1$d stops for this day, with %2$d van.', 'Free plan: plans of up to %1$d stops for this day, with %2$d vans.', $tier['max_vehicles'], 'connect-the-dots' ),
+					$tier['remaining_stops'],
+					$tier['max_vehicles']
+				)
+			)
 		);
 	}
 
@@ -475,6 +528,13 @@ class RoutesPage {
 			);
 		}
 
+		foreach ( $this->store->leftOut( (string) ( $plan['delivery_date'] ?? '' ), (string) ( $plan['plan_id'] ?? '' ) ) as $order_id ) {
+			$unplanned[] = array(
+				'order'  => $this->orderLink( wc_get_order( $order_id ), (string) $order_id ),
+				'reason' => __( 'Not sent, to stay within the free plan', 'connect-the-dots' ),
+			);
+		}
+
 		$ctdflow_routes    = $routes;
 		$ctdflow_unplanned = $unplanned;
 
@@ -501,10 +561,10 @@ class RoutesPage {
 		}
 
 		$limits = sprintf(
-			/* translators: 1: number of stops left for the day, 2: number of vans in a plan. */
+			/* translators: 1: stops a plan of this day can have, 2: number of vans in a plan. */
 			_n(
-				'Your free plan has %1$d stops left for this day and plans with %2$d van.',
-				'Your free plan has %1$d stops left for this day and plans with %2$d vans.',
+				'Your free plan makes plans of up to %1$d stops for this day, with %2$d van.',
+				'Your free plan makes plans of up to %1$d stops for this day, with %2$d vans.',
 				$tier['max_vehicles'],
 				'connect-the-dots'
 			),

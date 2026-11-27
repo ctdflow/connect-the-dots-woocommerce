@@ -10,7 +10,7 @@
  * @var array|null                              $ctdflow_account       Account JSON, null when it could not be read.
  * @var string|null                             $ctdflow_account_error Why the account could not be read.
  * @var string                                  $ctdflow_plan_label    Label of the billing status.
- * @var array|null                              $ctdflow_tier          Free tier limits, null for a paid account.
+ * @var string                                  $ctdflow_tier_html     The line about the free plan, empty for a paid account.
  * @var array                                   $ctdflow_orders        Rows of orders that can be planned.
  * @var array                                   $ctdflow_unplannable   Rows of orders that cannot be planned.
  * @var int                                     $ctdflow_delivered     Number of delivered orders of the day that were left out.
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 				/* translators: 1: organisation name, 2: plan such as Free or Active. */
 				esc_html__( 'Connected: %1$s · %2$s', 'connect-the-dots' ),
 				'<strong>' . esc_html( (string) ( $ctdflow_account['organization'] ?? '' ) ) . '</strong>',
-				esc_html( $ctdflow_plan_label )
+				'<span class="ctdflow-plan-label">' . esc_html( $ctdflow_plan_label ) . '</span>'
 			);
 			?>
 		</p>
@@ -141,19 +141,7 @@ defined( 'ABSPATH' ) || exit;
 			</p>
 		<?php endif; ?>
 
-		<?php if ( null !== $ctdflow_tier ) : ?>
-			<p class="description">
-				<?php
-				printf(
-					/* translators: 1: stops left for the day, 2: stops per day on the free plan, 3: vans per plan. */
-					esc_html( _n( 'Free plan: %1$d of %2$d stops left for this day, %3$d van per plan.', 'Free plan: %1$d of %2$d stops left for this day, %3$d vans per plan.', $ctdflow_tier['max_vehicles'], 'connect-the-dots' ) ),
-					(int) $ctdflow_tier['remaining_stops'],
-					(int) $ctdflow_tier['max_stops'],
-					(int) $ctdflow_tier['max_vehicles']
-				);
-				?>
-			</p>
-		<?php endif; ?>
+		<div class="ctdflow-tier"><?php echo wp_kses( $ctdflow_tier_html, RoutesPage::allowedHtml() ); ?></div>
 
 		<div id="ctdflow-choice"><?php echo wp_kses( $ctdflow_choice, RoutesPage::allowedHtml() ); ?></div>
 

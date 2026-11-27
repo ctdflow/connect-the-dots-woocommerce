@@ -113,6 +113,24 @@
 		window.setTimeout( tick, config.interval );
 	}
 
+	/**
+	 * Shows the plan and free plan line the server sent after planning, which may have started a trial.
+	 *
+	 * @param {Object} data Data of the plan response.
+	 */
+	function showAccount( data ) {
+		const label = document.querySelector( '.ctdflow-plan-label' );
+		const tier = document.querySelector( '.ctdflow-tier' );
+
+		if ( label && 'string' === typeof data.plan_label ) {
+			label.textContent = data.plan_label;
+		}
+
+		if ( tier && 'string' === typeof data.tier_html ) {
+			tier.innerHTML = data.tier_html;
+		}
+	}
+
 	if ( form && result ) {
 		form.addEventListener( 'submit', ( event ) => {
 			event.preventDefault();
@@ -133,6 +151,7 @@
 					if ( response.success ) {
 						choice.replaceChildren();
 						result.innerHTML = data.html || '';
+						showAccount( data );
 						poll( date );
 						return;
 					}

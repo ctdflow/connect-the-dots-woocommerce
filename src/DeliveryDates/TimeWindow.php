@@ -15,7 +15,8 @@ defined( 'ABSPATH' ) || exit;
 final class TimeWindow {
 
 	/**
-	 * Parses a slot. A slot that ends at midnight ("24:00", or "00:00" after a later start) ends at 23:59.
+	 * Parses a slot on the 24 hour clock ("09:00 - 12:30") or the 12 hour clock ("2:00 PM - 4:00 PM").
+	 * A slot that ends at midnight ("24:00", "12:00 AM", or "00:00" after a later start) ends at 23:59.
 	 * Anything that is not a valid window with the end after the start gives null.
 	 *
 	 * @param string $text Slot text such as "09:00 - 12:30".
@@ -23,12 +24,21 @@ final class TimeWindow {
 	 * @return array{from: string, to: string}|null
 	 */
 	public static function parse( string $text ): ?array {
-		if ( 1 !== preg_match( '/^(\d{1,2}):(\d{2}) - (\d{1,2}):(\d{2})$/', trim( $text ), $parts ) ) {
+		$time = '(\d{1,2}):(\d{2})(?:\s*([ap])\.?\s*m\.?)?';
+
+		if ( 1 !== preg_match( '/^' . $time . '\s*-\s*' . $time . '$/i', trim( $text ), $parts ) ) {
 			return null;
 		}
 
-		$from = self::minutes( (int) $parts[1], (int) $parts[2], false );
-		$to   = self::minutes( (int) $parts[3], (int) $parts[4], true );
+		$from_hour = self::hour( (int) $parts[1], strtolower( $parts[3] ?? '' ) );
+		$to_hour   = self::hour( (int) $parts[4], strtolower( $parts[6] ?? '' ) );
+
+		if ( null === $from_hour || null === $to_hour ) {
+			return null;
+		}
+
+		$from = self::minutes( $from_hour, (int) $parts[2], false );
+		$to   = self::minutes( $to_hour, (int) $parts[5], true );
 
 		if ( null === $from || null === $to ) {
 			return null;
@@ -46,6 +56,24 @@ final class TimeWindow {
 			'from' => sprintf( '%02d:%02d', intdiv( $from, 60 ), $from % 60 ),
 			'to'   => sprintf( '%02d:%02d', intdiv( $to, 60 ), $to % 60 ),
 		);
+	}
+
+	/**
+	 * The hour on the 24 hour clock. A 12 hour time (with a or p) needs an hour from 1 to 12.
+	 *
+	 * @param int    $hour     Hour as written.
+	 * @param string $meridiem a, p or empty for the 24 hour clock.
+	 */
+	private static function hour( int $hour, string $meridiem ): ?int {
+		if ( '' === $meridiem ) {
+			return $hour;
+		}
+
+		if ( $hour < 1 || $hour > 12 ) {
+			return null;
+		}
+
+		return ( 12 === $hour ? 0 : $hour ) + ( 'p' === $meridiem ? 12 : 0 );
 	}
 
 	/**

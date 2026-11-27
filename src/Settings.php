@@ -240,9 +240,14 @@ class Settings {
 		}
 
 		if ( isset( $input['statuses'] ) ) {
-			$allowed             = array_keys( wc_get_order_statuses() );
-			$statuses            = array_values( array_intersect( array_map( 'sanitize_key', (array) $input['statuses'] ), $allowed ) );
-			$clean['statuses']   = array() === $statuses ? array( 'wc-processing' ) : $statuses;
+			$allowed  = array_keys( wc_get_order_statuses() );
+			$statuses = array_values( array_intersect( array_map( 'sanitize_key', (array) $input['statuses'] ), $allowed ) );
+
+			if ( array() === $statuses ) {
+				$this->error( 'statuses_empty', __( 'Choose at least one order status to plan. The previous statuses are kept.', 'connect-the-dots' ) );
+			} else {
+				$clean['statuses'] = $statuses;
+			}
 		}
 
 		if ( isset( $input['shipping_methods'] ) ) {
@@ -405,6 +410,13 @@ class Settings {
 				'capacity'        => $capacity > 0 ? $capacity : null,
 				'active'          => $this->flag( $row['active'] ?? false ),
 			);
+		}
+
+		// Every name was cleared. A van whose times were refused already has its own error.
+		if ( array() === $names ) {
+			$this->error( 'vehicles_empty', __( 'Keep at least one van. The previous vans are kept.', 'connect-the-dots' ) );
+
+			return $this->storedVehicles();
 		}
 
 		return $clean;

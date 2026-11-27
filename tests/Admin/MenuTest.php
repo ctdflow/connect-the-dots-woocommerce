@@ -239,6 +239,15 @@ class MenuTest extends TestCase {
 		$this->assertStringContainsString( 'name=\'option_page\' value=\'ctdflow_settings\'', $page );		$this->assertStringContainsString( '1 is tomorrow, 0 is today.', $page );
 	}
 
+	public function test_saving_the_settings_shows_that_they_were_saved(): void {
+		update_option( 'ctdflow_tokens', array( 'access_token' => 'a', 'refresh_token' => 'r', 'expires_at' => time() + 3600 ), false );
+		$this->account();
+		set_transient( 'settings_errors', array( array( 'setting' => 'general', 'code' => 'settings_updated', 'message' => 'Settings saved.', 'type' => 'success' ) ), 30 );
+		$_GET['settings-updated'] = 'true';
+
+		$this->assertStringContainsString( 'Settings saved.', $this->renderedPage( 'settings' ) );
+	}
+
 	public function test_the_page_needs_the_capability(): void {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 

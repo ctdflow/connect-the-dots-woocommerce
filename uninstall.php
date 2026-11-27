@@ -23,6 +23,7 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 			'ctdflow_pending_plans',
 			'ctdflow_applied_plans',
 			'ctdflow_seen_orders',
+			'ctdflow_left_out_orders',
 			'ctdflow_last_scheduled_run',
 			'ctdflow_scheduled_lock',
 			'ctdflow_refresh_lock',

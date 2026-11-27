@@ -77,6 +77,11 @@ class WooDeliverySourceTest extends TestCase {
 		$this->assertNull( $this->source->deliveryDate( $this->orderWithMeta( array( 'delivery_date' => 'not a date' ) ) ) );
 	}
 
+	public function test_text_that_reads_as_the_start_of_1970_is_no_date(): void {
+		$this->assertNull( $this->source->deliveryDate( $this->orderWithMeta( array( 'delivery_date' => '@0' ) ) ) );
+		$this->assertNull( $this->source->deliveryDate( $this->orderWithMeta( array( 'delivery_date' => 'January 1, 1970' ) ) ) );
+	}
+
 	public function test_a_malformed_slot_is_no_window(): void {
 		$order = $this->orderWithMeta( array( 'delivery_date' => '2026-12-24', 'delivery_time' => 'afternoon' ) );
 

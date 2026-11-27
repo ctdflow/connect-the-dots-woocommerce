@@ -128,6 +128,28 @@ class SettingsTest extends TestCase {
 		$this->assertSame( 'Van B', $vehicles[0]->name );
 	}
 
+	public function test_removing_every_van_is_refused_and_keeps_the_vans(): void {
+		update_option( 'ctdflow_settings', array( 'vehicles' => array( $this->van( 'Van A' ) ) ) );
+		$id = ( new Settings() )->vehicles()[0]->id;
+
+		update_option( 'ctdflow_settings', array( 'vehicles' => array( $this->van( '', '08:00', '17:00', '', $id ) ) ) );
+
+		$vehicles = ( new Settings() )->vehicles();
+
+		$this->assertCount( 1, $vehicles );
+		$this->assertSame( 'Van A', $vehicles[0]->name );
+		$this->assertSame( 'vehicles_empty', get_settings_errors( 'ctdflow_settings' )[0]['code'] );
+	}
+
+	public function test_unchecking_every_status_is_refused_and_keeps_the_statuses(): void {
+		update_option( 'ctdflow_settings', array( 'statuses' => array( 'wc-processing', 'wc-on-hold' ) ) );
+
+		update_option( 'ctdflow_settings', array( 'statuses' => array( '' ) ) );
+
+		$this->assertSame( array( 'wc-processing', 'wc-on-hold' ), ( new Settings() )->statuses() );
+		$this->assertSame( 'statuses_empty', get_settings_errors( 'ctdflow_settings' )[0]['code'] );
+	}
+
 	public function test_a_van_that_starts_after_it_ends_is_rejected_and_keeps_its_old_times(): void {
 		update_option( 'ctdflow_settings', array( 'vehicles' => array( $this->van( 'Van A', '08:00', '17:00' ) ) ) );
 		$id = ( new Settings() )->vehicles()[0]->id;

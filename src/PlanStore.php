@@ -48,6 +48,13 @@ class PlanStore {
 	private string $seenOrdersOption = 'ctdflow_seen_orders';
 
 	/**
+	 * Name of the option with the orders a plan left out to stay within the free plan, by date.
+	 *
+	 * @var string
+	 */
+	private string $leftOutOption = 'ctdflow_left_out_orders';
+
+	/**
 	 * Number of days before today that plans are kept for.
 	 *
 	 * @var int
@@ -151,6 +158,51 @@ class PlanStore {
 		$seen = $this->allSeenOrders();
 
 		return isset( $seen[ $date ] ) ? $seen[ $date ] : null;
+	}
+
+	/**
+	 * Remembers the chosen orders a plan of a day left out to stay within the free plan. An empty list
+	 * forgets them.
+	 *
+	 * @param string $date     Delivery date as Y-m-d.
+	 * @param string $planId   Plan id from Connect the Dots.
+	 * @param int[]  $orderIds Order ids that were not sent.
+	 */
+	public function putLeftOut( string $date, string $planId, array $orderIds ): void {
+		$left_out = get_option( $this->leftOutOption, array() );
+		$left_out = $this->withoutOldDays( is_array( $left_out ) ? $left_out : array() );
+
+		unset( $left_out[ $date ] );
+
+		if ( array() !== $orderIds ) {
+			$left_out[ $date ] = array(
+				'plan_id' => $planId,
+				'orders'  => array_values( array_unique( array_map( 'intval', $orderIds ) ) ),
+			);
+		}
+
+		ksort( $left_out );
+
+		update_option( $this->leftOutOption, $left_out, false );
+	}
+
+	/**
+	 * The orders a plan left out to stay within the free plan, empty for another plan of the day.
+	 *
+	 * @param string $date   Delivery date as Y-m-d.
+	 * @param string $planId Plan id from Connect the Dots.
+	 *
+	 * @return int[]
+	 */
+	public function leftOut( string $date, string $planId ): array {
+		$left_out = get_option( $this->leftOutOption, array() );
+		$entry    = is_array( $left_out ) ? ( $left_out[ $date ] ?? null ) : null;
+
+		if ( ! is_array( $entry ) || ( $entry['plan_id'] ?? '' ) !== $planId ) {
+			return array();
+		}
+
+		return array_map( 'intval', (array) ( $entry['orders'] ?? array() ) );
 	}
 
 	/**

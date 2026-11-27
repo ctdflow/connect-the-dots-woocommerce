@@ -234,6 +234,49 @@ class RoutesPageTest extends TestCase {
 		$this->assertCount( 26, $this->planBody()['stops'] );
 	}
 
+	public function test_the_orders_the_first_choice_left_out_are_listed_as_not_planned(): void {
+		$this->connect();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 1 ) ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+		$orders = $this->orders( 2 );
+
+		$this->assertTrue( $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'first' ) )['success'] );
+
+		$sent     = (int) $this->planBody()['stops'][0]['reference'];
+		$left_out = $sent === $orders[0]->get_id() ? $orders[1] : $orders[0];
+		$plan     = $this->succeeded( wc_get_order( $sent ), $left_out );
+
+		$plan['unplanned'] = array();
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $plan );
+
+		$html = $this->ajax( 'handleStatus', $this->statusRequest() )['data']['html'];
+
+		$this->assertStringContainsString( '#' . $left_out->get_order_number(), $html );
+		$this->assertStringContainsString( 'Not sent, to stay within the free plan', $html );
+	}
+
+	public function test_planning_answers_with_the_plan_label_and_free_plan_line_after_a_trial_started(): void {
+		$this->connect();
+		$this->account();
+		$this->account( array( 'billing_status' => 'trial', 'paid' => true, 'free_tier' => null ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $this->orders( 26 ), array( 'van-1' ), 'trial' ) );
+
+		$this->assertSame( 'Trial', $response['data']['plan_label'] );
+		$this->assertSame( '', $response['data']['tier_html'] );
+	}
+
+	public function test_the_free_plan_line_says_how_large_a_plan_of_the_day_can_be(): void {
+		$this->connect();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 20 ) ) );
+
+		$page = $this->renderedPage();
+
+		$this->assertStringContainsString( 'Free plan: plans of up to 20 stops for this day, with 1 van.', $page );
+		$this->assertStringContainsString( '<span class="ctdflow-plan-label">Free</span>', $page );
+	}
+
 	public function test_a_free_account_with_two_active_vans_gets_the_choice_and_the_first_sends_one_van(): void {
 		$this->connect();
 		$this->account();
@@ -281,6 +324,18 @@ class RoutesPageTest extends TestCase {
 		$this->assertSame( 'upgrade_required', $response['data']['code'] );
 		$this->assertStringContainsString( 'needs a paid Connect the Dots plan', $response['data']['html'] );
 		$this->assertStringContainsString( 'href="https://ctdflow.com/pricing"', $response['data']['html'] );
+	}
+
+	public function test_planning_today_after_the_working_hours_says_so(): void {
+		$this->connect();
+		$this->account( array( 'billing_status' => 'active', 'paid' => true, 'free_tier' => null ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 422, array( 'error' => array( 'type' => 'validation_error', 'code' => 'working_hours_over', 'message' => 'Over.' ) ) );
+
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $this->orders( 2 ), array( 'van-1' ) ) );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'working_hours_over', $response['data']['code'] );
+		$this->assertStringContainsString( 'The working hours of every van are over for today.', $response['data']['html'] );
 	}
 
 	public function test_a_lost_connection_offers_to_connect_again_and_keeps_the_selection(): void {

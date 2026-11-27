@@ -293,6 +293,7 @@ class SettingsPage {
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row">' . esc_html__( 'Plan orders with status', 'connect-the-dots' ) . '</th><td>';
+		echo '<input type="hidden" name="' . esc_attr( $name ) . '[statuses][]" value="" />';
 
 		foreach ( $statuses as $status => $label ) {
 			printf(

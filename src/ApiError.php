@@ -112,6 +112,8 @@ class ApiError extends RuntimeException {
 				return __( 'Your Connect the Dots account is blocked. Contact Connect the Dots support.', 'connect-the-dots' );
 			case 'daily_limit_reached':
 				return __( 'The daily limit of Connect the Dots is reached. Try again tomorrow.', 'connect-the-dots' );
+			case 'working_hours_over':
+				return __( 'The working hours of every van are over for today. Plan another day or set later hours for a van.', 'connect-the-dots' );
 			case 'routing_unavailable':
 				return __( 'Route planning is temporarily unavailable. Try again in a few minutes.', 'connect-the-dots' );
 		}

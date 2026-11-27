@@ -221,6 +221,8 @@ class Menu {
 
 		$this->renderNotice();
 		settings_errors( Settings::OPTION );
+		// options.php files "Settings saved." under general, which only settings pages of WordPress itself show.
+		settings_errors( 'general' );
 
 		echo '<nav class="nav-tab-wrapper">';
 		printf(

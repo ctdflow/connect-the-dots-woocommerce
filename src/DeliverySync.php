@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Reads the current plans from yesterday up to the last planned day and stores when each stop was
- * delivered as order meta.
+ * delivered as order meta, or removes that time when the driver undid the check off.
  */
 class DeliverySync {
 
@@ -129,18 +129,22 @@ class DeliverySync {
 	private function storeDeliveries( array $plan ): void {
 		foreach ( (array) ( $plan['routes'] ?? array() ) as $route ) {
 			foreach ( (array) ( $route['stops'] ?? array() ) as $stop ) {
+				$order = wc_get_order( (int) ( $stop['reference'] ?? 0 ) );
+
+				if ( ! $order instanceof \WC_Order ) {
+					continue;
+				}
+
+				$plan_id   = (string) ( $plan['plan_id'] ?? '' );
 				$delivered = $stop['delivered_at'] ?? null;
 				$time      = is_string( $delivered ) && '' !== $delivered ? strtotime( $delivered ) : false;
 
 				if ( false === $time ) {
+					$this->forgetDelivery( $order, $plan_id );
 					continue;
 				}
 
-				$order = wc_get_order( (int) ( $stop['reference'] ?? 0 ) );
-
-				if ( $order instanceof \WC_Order ) {
-					$this->storeDelivery( $order, (string) ( $plan['plan_id'] ?? '' ), $delivered, $time );
-				}
+				$this->storeDelivery( $order, $plan_id, $delivered, $time );
 			}
 		}
 	}
@@ -174,6 +178,29 @@ class DeliverySync {
 					wp_date( 'H:i', $time )
 				)
 			);
+		}
+	}
+
+	/**
+	 * Removes the delivery time of an order whose driver undid the check off, and adds a note.
+	 *
+	 * @param \WC_Order $order  The order.
+	 * @param string    $planId Id of the plan the stop belongs to.
+	 */
+	private function forgetDelivery( \WC_Order $order, string $planId ): void {
+		if ( '' === $planId || (string) $order->get_meta( '_ctdflow_plan_id', true ) !== $planId ) {
+			return;
+		}
+
+		if ( '' === (string) $order->get_meta( '_ctdflow_delivered_at', true ) ) {
+			return;
+		}
+
+		$order->delete_meta_data( '_ctdflow_delivered_at' );
+		$order->save();
+
+		if ( $this->settings->addOrderNote() ) {
+			$order->add_order_note( __( 'The driver undid the delivery', 'connect-the-dots' ) );
 		}
 	}
 }

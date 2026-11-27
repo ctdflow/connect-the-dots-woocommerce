@@ -105,13 +105,20 @@ msgstr "De planning is verlopen. Connect the Dots bewaart planningen een beperkt
 msgid "Newer plans replaced this plan too many times in a row. Plan this day again to see its routes."
 msgstr "Deze planning is te vaak achter elkaar door een nieuwere vervangen. Plan deze dag opnieuw om de ritten te zien."
 
-#. translators: 1: number of stops left for the day, 2: number of vans in a plan.
-#: src/Admin/RoutesPage.php:501
 #, php-format
-msgid "Your free plan has %1$d stops left for this day and plans with %2$d van."
-msgid_plural "Your free plan has %1$d stops left for this day and plans with %2$d vans."
-msgstr[0] "Je gratis abonnement heeft nog %1$d stops voor deze dag en plant met %2$d bus."
-msgstr[1] "Je gratis abonnement heeft nog %1$d stops voor deze dag en plant met %2$d bussen."
+msgid "Your free plan makes plans of up to %1$d stops for this day, with %2$d van."
+msgid_plural "Your free plan makes plans of up to %1$d stops for this day, with %2$d vans."
+msgstr[0] "Je gratis abonnement maakt planningen tot %1$d stops voor deze dag, met %2$d bus."
+msgstr[1] "Je gratis abonnement maakt planningen tot %1$d stops voor deze dag, met %2$d bussen."
+
+#, php-format
+msgid "Free plan: plans of up to %1$d stops for this day, with %2$d van."
+msgid_plural "Free plan: plans of up to %1$d stops for this day, with %2$d vans."
+msgstr[0] "Gratis abonnement: planningen tot %1$d stops voor deze dag, met %2$d bus."
+msgstr[1] "Gratis abonnement: planningen tot %1$d stops voor deze dag, met %2$d bussen."
+
+msgid "Not sent, to stay within the free plan"
+msgstr "Niet verstuurd, om binnen het gratis abonnement te blijven"
 
 #. translators: 1: number of orders, like "26 orders", 2: number of vans, like "2 vans".
 #: src/Admin/RoutesPage.php:512
@@ -636,6 +643,14 @@ msgstr "De planningstijd moet een tijd zijn zoals 18:00. De vorige tijd blijft b
 msgid "Two vans have the same name. Give every van its own name. The previous vans are kept."
 msgstr "Twee bussen hebben dezelfde naam. Geef elke bus een eigen naam. De vorige bussen blijven bewaard."
 
+#: src/Settings.php:247
+msgid "Choose at least one order status to plan. The previous statuses are kept."
+msgstr "Kies minstens één bestelstatus om te plannen. De vorige statussen blijven staan."
+
+#: src/Settings.php:417
+msgid "Keep at least one van. The previous vans are kept."
+msgstr "Houd minstens één bus over. De vorige bussen blijven staan."
+
 #. translators: %s: name of the van.
 #: src/Settings.php:350
 #, php-format
@@ -855,14 +870,6 @@ msgstr "Er is geen actieve bus."
 msgid "Set up your vans"
 msgstr "Stel je bussen in"
 
-#. translators: 1: stops left for the day, 2: stops per day on the free plan, 3: vans per plan.
-#: views/routes-page.php:147
-#, php-format
-msgid "Free plan: %1$d of %2$d stops left for this day, %3$d van per plan."
-msgid_plural "Free plan: %1$d of %2$d stops left for this day, %3$d vans per plan."
-msgstr[0] "Gratis abonnement: nog %1$d van %2$d stops voor deze dag, %3$d bus per planning."
-msgstr[1] "Gratis abonnement: nog %1$d van %2$d stops voor deze dag, %3$d bussen per planning."
-
 #: views/routes-page.php:160
 msgid "Plan again"
 msgstr "Opnieuw plannen"
@@ -931,3 +938,9 @@ msgstr "Plan bestellingen met verzendmethode"
 #: src/Admin/SettingsPage.php:322
 msgid "Choose none to plan orders with any shipping method. Orders that are picked up, and orders with only virtual products, are always left out."
 msgstr "Kies er geen om bestellingen met elke verzendmethode te plannen. Bestellingen die worden afgehaald en bestellingen met alleen virtuele producten blijven altijd buiten de planning."
+
+msgid "The working hours of every van are over for today. Plan another day or set later hours for a van."
+msgstr "De werktijden van alle bussen zijn voorbij voor vandaag. Plan een andere dag of geef een bus latere tijden."
+
+msgid "The driver undid the delivery"
+msgstr "De chauffeur heeft de levering ongedaan gemaakt"

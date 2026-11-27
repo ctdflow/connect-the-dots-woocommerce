@@ -78,7 +78,12 @@ class WooDeliverySource implements DeliveryDateSource {
 
 		$timestamp = strtotime( $date );
 
-		return false === $timestamp ? null : gmdate( 'Y-m-d', $timestamp );
+		// strtotime() reads some text that is no date as the start of 1970, which no delivery is on.
+		if ( false === $timestamp || '1970-01-01' === gmdate( 'Y-m-d', $timestamp ) ) {
+			return null;
+		}
+
+		return gmdate( 'Y-m-d', $timestamp );
 	}
 
 	/**

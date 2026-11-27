@@ -88,6 +88,34 @@ class DeliverySyncTest extends TestCase {
 		$this->assertSame( '', wc_get_order( $order->get_id() )->get_meta( '_ctdflow_delivered_at' ) );
 	}
 
+	public function test_a_delivery_the_driver_undid_is_removed_with_a_note(): void {
+		$this->connect();
+		$order = $this->order( 'opt_1' );
+		$this->planFor( $this->today(), 'opt_1' );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $this->plan( 'opt_1', array( $order->get_id() => '2026-12-24T08:05:00+00:00' ) ) );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $this->plan( 'opt_1', array( $order->get_id() => null ) ) );
+
+		DeliverySync::create()->run();
+		DeliverySync::create()->run();
+		DeliverySync::create()->run();
+
+		$order = wc_get_order( $order->get_id() );
+
+		$this->assertSame( '', $order->get_meta( '_ctdflow_delivered_at' ) );
+		$this->assertSame( array( 'The driver undid the delivery', 'Delivered at 09:05' ), $this->notes( $order ) );
+	}
+
+	public function test_an_order_of_another_plan_keeps_its_delivery_when_this_plan_has_no_check_off(): void {
+		$this->connect();
+		$order = $this->orderWithMeta( array( '_ctdflow_plan_id' => 'opt_other', '_ctdflow_delivered_at' => '2026-12-24T08:05:00+00:00' ) );
+		$this->planFor( $this->today(), 'opt_1' );
+		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $this->plan( 'opt_1', array( $order->get_id() => null ) ) );
+
+		DeliverySync::create()->run();
+
+		$this->assertSame( '2026-12-24T08:05:00+00:00', wc_get_order( $order->get_id() )->get_meta( '_ctdflow_delivered_at' ) );
+	}
+
 	public function test_it_reads_yesterday_and_today_and_skips_days_without_a_plan(): void {
 		$this->connect();
 		$yesterday = ( new \DateTimeImmutable( 'yesterday', wp_timezone() ) )->format( 'Y-m-d' );
@@ -308,6 +336,6 @@ class DeliverySyncTest extends TestCase {
 	private function notes( WC_Order $order ): array {
 		$texts = array_map( static fn ( $note ) => $note->content, wc_get_order_notes( array( 'order_id' => $order->get_id() ) ) );
 
-		return array_values( array_filter( $texts, static fn ( string $text ): bool => str_starts_with( $text, 'Delivered' ) ) );
+		return array_values( array_filter( $texts, static fn ( string $text ): bool => str_starts_with( $text, 'Delivered' ) || str_starts_with( $text, 'The driver undid' ) ) );
 	}
 }
