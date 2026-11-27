@@ -58,8 +58,9 @@ class PlanRequestBuilder {
 
 		foreach ( $orders as $selected ) {
 			$stop = array(
-				'reference' => (string) $selected->order->get_id(),
-				'address'   => $this->addressString( $selected->address ),
+				'reference'    => (string) $selected->order->get_id(),
+				'order_number' => (string) $selected->order->get_order_number(),
+				'address'      => $this->addressString( $selected->address ),
 			);
 
 			if ( null !== $selected->timeWindow ) {

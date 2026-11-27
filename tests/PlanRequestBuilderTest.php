@@ -39,7 +39,7 @@ class PlanRequestBuilderTest extends TestCase {
 		);
 		$this->assertSame( array( 'address' ), array_keys( $body['depot'] ) );
 		$this->assertSame(
-			array( 'reference', 'address', 'time_window', 'quantity', 'service_minutes' ),
+			array( 'reference', 'order_number', 'address', 'time_window', 'quantity', 'service_minutes' ),
 			array_keys( $body['stops'][0] )
 		);
 		$this->assertSame( array( 'from', 'to' ), array_keys( $body['stops'][0]['time_window'] ) );
@@ -62,6 +62,7 @@ class PlanRequestBuilderTest extends TestCase {
 		$this->assertSame( 'scheduled', $body['trigger'] );
 		$this->assertSame( 'Depotstraat 1, 1011 AB Amsterdam', $body['depot']['address'] );
 		$this->assertSame( (string) $selected->order->get_id(), $body['stops'][0]['reference'] );
+		$this->assertSame( (string) $selected->order->get_id(), $body['stops'][0]['order_number'] );
 		$this->assertSame( 'Kerkstraat 10, 3511 AB Utrecht', $body['stops'][0]['address'] );
 		$this->assertSame( array( 'from' => '09:00', 'to' => '12:00' ), $body['stops'][0]['time_window'] );
 		$this->assertSame( 4, $body['stops'][0]['quantity'] );
@@ -70,6 +71,17 @@ class PlanRequestBuilderTest extends TestCase {
 			array( 'name' => 'Van A', 'available_from' => '08:00', 'available_until' => '17:00', 'capacity' => 20 ),
 			$body['vehicles'][0]
 		);
+	}
+
+	public function test_a_sequential_order_number_is_sent_beside_the_order_id(): void {
+		$selected = $this->selected( null );
+
+		add_filter( 'woocommerce_order_number', static fn (): string => 'WEB-2026-0042' );
+
+		$body = $this->builder->build( '2026-12-24', array( $selected ), array( new Vehicle( 'a', 'Van A' ) ), 'manual' );
+
+		$this->assertSame( (string) $selected->order->get_id(), $body['stops'][0]['reference'] );
+		$this->assertSame( 'WEB-2026-0042', $body['stops'][0]['order_number'] );
 	}
 
 	public function test_a_stop_without_time_window_has_no_time_window_key(): void {

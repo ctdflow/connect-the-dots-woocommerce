@@ -48,7 +48,7 @@ The plugin sends data to https://api.ctdflow.com when you connect your shop, whe
 
 **What is sent for every order**
 
-* the order id, as a reference
+* the order id, as a reference, and the order number the shop shows on invoices
 * the delivery address: street with house number, postcode and city (the country of the orders is not sent, because only orders in the country of the depot are planned)
 * the time window of the delivery, if the order has one
 * the number of items
@@ -99,7 +99,7 @@ Planning delivery routes is free within the limits of the free level, which you 
 
 = Which data leaves my shop? =
 
-For every order the order id, the delivery address, the time window and the number of items. For every van its name, addresses, availability and capacity. Never customer names, email addresses, phone numbers, amounts or products. The External services section lists all of it.
+For every order the order id and order number, the delivery address, the time window and the number of items. For every van its name, addresses, availability and capacity. Never customer names, email addresses, phone numbers, amounts or products. The External services section lists all of it.
 
 = Which delivery date plugins does it work with? =
 
