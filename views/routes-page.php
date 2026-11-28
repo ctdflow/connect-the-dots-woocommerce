@@ -16,7 +16,6 @@
  * @var int                                     $ctdflow_delivered     Number of delivered orders of the day that were left out.
  * @var \ConnectTheDots\Vehicle[]               $ctdflow_vans          Active vans.
  * @var string[]                                $ctdflow_checked_vans  Ids of the vans that are checked.
- * @var string                                  $ctdflow_choice        HTML of the free tier choice, empty when not needed.
  * @var array{done: bool, html: string}|null    $ctdflow_result        The stored plan of the day.
  */
 
@@ -143,10 +142,8 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="ctdflow-tier"><?php echo wp_kses( $ctdflow_tier_html, RoutesPage::allowedHtml() ); ?></div>
 
-		<div id="ctdflow-choice"><?php echo wp_kses( $ctdflow_choice, RoutesPage::allowedHtml() ); ?></div>
-
 		<p>
-			<button type="submit" name="choice" value="" class="button button-primary" id="ctdflow-plan-button">
+			<button type="submit" class="button button-primary" id="ctdflow-plan-button">
 				<?php echo null === $ctdflow_result ? esc_html__( 'Plan', 'connect-the-dots' ) : esc_html__( 'Plan again', 'connect-the-dots' ); ?>
 			</button>
 		</p>

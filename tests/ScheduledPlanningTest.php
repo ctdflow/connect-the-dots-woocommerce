@@ -902,7 +902,7 @@ class ScheduledPlanningTest extends TestCase {
 				'billing_status'      => $paid ? 'active' : 'free',
 				'paid'                => $paid,
 				'trial_available'     => false,
-				'free_tier'           => $paid ? null : array( 'max_vehicles' => 1, 'max_stops' => 20, 'remaining_stops' => 20 ),
+				'free_tier'           => $paid ? null : array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 100 ),
 				'supported_countries' => $countries,
 				'pricing_url'         => 'https://ctdflow.com/pricing',
 			)

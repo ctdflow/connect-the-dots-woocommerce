@@ -110,34 +110,6 @@ class Planner {
 	}
 
 	/**
-	 * The ids of the first orders to plan within a stop limit: by start of the time window, orders
-	 * without a window last, then by order number.
-	 *
-	 * @param string $date     Delivery date as Y-m-d.
-	 * @param int[]  $orderIds Orders to choose from.
-	 * @param int    $count    Number of orders to keep.
-	 *
-	 * @return int[]
-	 */
-	public function firstOrders( string $date, array $orderIds, int $count ): array {
-		$orders = $this->plannable( $date, $orderIds );
-
-		usort(
-			$orders,
-			static function ( SelectedOrder $a, SelectedOrder $b ): int {
-				$by_window = strcmp( $a->timeWindow['from'] ?? '99:99', $b->timeWindow['from'] ?? '99:99' );
-
-				return 0 !== $by_window ? $by_window : strnatcmp( (string) $a->order->get_order_number(), (string) $b->order->get_order_number() );
-			}
-		);
-
-		return array_map(
-			static fn( SelectedOrder $selected ): int => $selected->order->get_id(),
-			array_slice( $orders, 0, max( 0, $count ) )
-		);
-	}
-
-	/**
 	 * The chosen orders that can be planned, in the order they were chosen.
 	 *
 	 * @param string $date     Delivery date as Y-m-d.

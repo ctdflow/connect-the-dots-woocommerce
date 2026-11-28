@@ -157,14 +157,13 @@ class RoutesPage {
 		$countries = is_array( $account['supported_countries'] ?? null ) ? array_map( 'strval', $account['supported_countries'] ) : null;
 		$selection = $this->selection->forDay( $date, $added, array(), $countries );
 		$vans      = $this->activeVans();
-		$tier      = null === $account ? null : Account::freeTier( $account );
 
 		$ctdflow_date          = $date;
 		$ctdflow_added         = implode( ',', $added );
 		$ctdflow_account       = $account;
 		$ctdflow_account_error = $account_error;
 		$ctdflow_plan_label    = null === $account ? '' : $this->planLabel( (string) ( $account['billing_status'] ?? '' ) );
-		$ctdflow_tier_html     = $this->tierHtml( $tier );
+		$ctdflow_tier_html     = $this->tierHtml( null === $account ? null : Account::freeTier( $account ) );
 		$ctdflow_orders        = array_map( array( $this, 'orderRow' ), $selection['plannable'] );
 		$ctdflow_unplannable   = array_map( array( $this, 'unplannableRow' ), $selection['unplannable'] );
 		$ctdflow_delivered     = $selection['delivered'];
@@ -182,9 +181,7 @@ class RoutesPage {
 			}
 		}
 
-		$checked_orders = count( array_filter( array_column( $ctdflow_orders, 'checked' ) ) );
-		$ctdflow_choice     = null === $tier ? '' : $this->choiceHtml( $tier, $checked_orders, count( $ctdflow_checked_vans ), (array) $account );
-		$ctdflow_result        = $this->result( $date );
+		$ctdflow_result = $this->result( $date );
 
 		include dirname( __DIR__, 2 ) . '/views/routes-page.php';
 	}
@@ -202,9 +199,8 @@ class RoutesPage {
 		$date        = $this->requestedDate( isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : '' );
 		$order_ids   = isset( $_POST['order_ids'] ) ? array_values( array_filter( array_map( 'absint', (array) wp_unslash( $_POST['order_ids'] ) ) ) ) : array();
 		$vehicle_ids = isset( $_POST['vehicle_ids'] ) ? array_values( array_map( 'sanitize_key', (array) wp_unslash( $_POST['vehicle_ids'] ) ) ) : array();
-		$choice      = isset( $_POST['choice'] ) ? sanitize_key( wp_unslash( $_POST['choice'] ) ) : '';
 
-		wp_send_json( $this->plan( $date, $order_ids, $vehicle_ids, in_array( $choice, array( 'first', 'trial' ), true ) ? $choice : '' ) );
+		wp_send_json( $this->plan( $date, $order_ids, $vehicle_ids ) );
 	}
 
 	/**
@@ -233,51 +229,29 @@ class RoutesPage {
 	}
 
 	/**
-	 * Sends a plan, after the free tier choice when the selection is above the free tier.
+	 * Sends a plan. Connect the Dots decides whether it fits in the free plan: a day that was planned
+	 * before only counts its new addresses, which the plugin cannot know, so it never cuts the orders
+	 * itself and shows the refusal instead.
 	 *
 	 * @param string   $date       Delivery date as Y-m-d.
 	 * @param int[]    $orderIds   Chosen orders.
 	 * @param string[] $vehicleIds Chosen vans.
-	 * @param string   $choice     first, trial or empty when no choice was made.
 	 *
 	 * @return array{success: bool, data: array}
 	 */
-	private function plan( string $date, array $orderIds, array $vehicleIds, string $choice ): array {
+	private function plan( string $date, array $orderIds, array $vehicleIds ): array {
 		$selection = array(
 			'date'        => $date,
 			'order_ids'   => $orderIds,
 			'vehicle_ids' => $vehicleIds,
 		);
 		$account   = null;
-		$left_out  = array();
 
 		try {
-			// The free tier decides how many orders go out. A cached tier that is out of date could send
-			// more than it allows, and that starts the trial the owner may just have turned down.
+			// A refusal says how many stops are left this month, so the account is read fresh.
 			Account::forget( $date );
 
-			$account = $this->account->fetch( $date );
-			$tier    = Account::freeTier( $account );
-
-			if ( null !== $tier ) {
-				$vans        = $this->chosenVanIds( $vehicleIds );
-				$choice_html = $this->choiceHtml( $tier, count( $orderIds ), count( $vans ), $account );
-
-				if ( '' !== $choice_html && '' === $choice ) {
-					return $this->failure( 'choice_needed', $choice_html, $selection );
-				}
-
-				if ( 'first' === $choice ) {
-					if ( count( $orderIds ) > $tier['remaining_stops'] ) {
-						$chosen   = array_map( 'intval', $orderIds );
-						$orderIds = $this->planner->firstOrders( $date, $orderIds, $tier['remaining_stops'] );
-						$left_out = array_values( array_diff( $chosen, $orderIds ) );
-					}
-
-					$vehicleIds = array_slice( $vans, 0, max( 1, $tier['max_vehicles'] ) );
-				}
-			}
-
+			$account   = $this->account->fetch( $date );
 			$countries = is_array( $account['supported_countries'] ?? null ) ? array_map( 'strval', $account['supported_countries'] ) : null;
 			$result    = $this->planner->plan( $date, $orderIds, $vehicleIds, 'manual', $countries );
 		} catch ( PlanningNotPossible $refused ) {
@@ -293,14 +267,10 @@ class RoutesPage {
 			return $this->failure( $error->errorCode, $this->errorHtml( $error, $account, $keep ), $selection );
 		}
 
-		$plan_id = (string) ( $result['plan_id'] ?? '' );
-
-		$this->store->putLeftOut( $date, $plan_id, $left_out );
-
 		return array(
 			'success' => true,
 			'data'    => array(
-				'plan_id' => $plan_id,
+				'plan_id' => (string) ( $result['plan_id'] ?? '' ),
 				'status'  => (string) ( $result['status'] ?? 'queued' ),
 				'html'    => $this->pendingHtml(),
 			) + $this->accountAfterPlanning( $date ),
@@ -308,7 +278,7 @@ class RoutesPage {
 	}
 
 	/**
-	 * The plan label and free plan line after planning, which may have started a trial. Empty when the
+	 * The plan label and free plan line after planning, which used stops of this month. Empty when the
 	 * account cannot be read, so the screen keeps what it shows.
 	 *
 	 * @param string $date Delivery date as Y-m-d.
@@ -344,10 +314,10 @@ class RoutesPage {
 			'<p class="description">%s</p>',
 			esc_html(
 				sprintf(
-					/* translators: 1: stops a plan of this day can have, 2: vans per plan. */
-					_n( 'Free plan: plans of up to %1$d stops for this day, with %2$d van.', 'Free plan: plans of up to %1$d stops for this day, with %2$d vans.', $tier['max_vehicles'], 'connect-the-dots' ),
+					/* translators: 1: planned stops left this month, 2: planned stops per month on the free plan. */
+					_n( 'Free plan: %1$d of %2$d planned stop left this month. A stop is one address on one delivery day.', 'Free plan: %1$d of %2$d planned stops left this month. A stop is one address on one delivery day.', $tier['remaining_stops'], 'connect-the-dots' ),
 					$tier['remaining_stops'],
-					$tier['max_vehicles']
+					$tier['max_stops']
 				)
 			)
 		);
@@ -528,13 +498,6 @@ class RoutesPage {
 			);
 		}
 
-		foreach ( $this->store->leftOut( (string) ( $plan['delivery_date'] ?? '' ), (string) ( $plan['plan_id'] ?? '' ) ) as $order_id ) {
-			$unplanned[] = array(
-				'order'  => $this->orderLink( wc_get_order( $order_id ), (string) $order_id ),
-				'reason' => __( 'Not sent, to stay within the free plan', 'connect-the-dots' ),
-			);
-		}
-
 		$ctdflow_routes    = $routes;
 		$ctdflow_unplanned = $unplanned;
 
@@ -542,75 +505,6 @@ class RoutesPage {
 		include dirname( __DIR__, 2 ) . '/views/plan-result.php';
 
 		return (string) ob_get_clean();
-	}
-
-	/**
-	 * The free tier choice, or an empty string when the selection fits the free tier.
-	 *
-	 * @param array{max_vehicles: int, max_stops: int, remaining_stops: int} $tier    The free tier.
-	 * @param int                                                           $orders  Number of chosen orders.
-	 * @param int                                                           $vans    Number of chosen active vans.
-	 * @param array                                                         $account Account JSON.
-	 */
-	private function choiceHtml( array $tier, int $orders, int $vans, array $account ): string {
-		$too_many_stops = $orders > $tier['remaining_stops'];
-		$too_many_vans  = $vans > $tier['max_vehicles'];
-
-		if ( ! $too_many_stops && ! $too_many_vans ) {
-			return '';
-		}
-
-		$limits = sprintf(
-			/* translators: 1: stops a plan of this day can have, 2: number of vans in a plan. */
-			_n(
-				'Your free plan makes plans of up to %1$d stops for this day, with %2$d van.',
-				'Your free plan makes plans of up to %1$d stops for this day, with %2$d vans.',
-				$tier['max_vehicles'],
-				'connect-the-dots'
-			),
-			$tier['remaining_stops'],
-			$tier['max_vehicles']
-		);
-		$chosen = sprintf(
-			/* translators: 1: number of orders, like "26 orders", 2: number of vans, like "2 vans". */
-			__( 'You chose %1$s and %2$s.', 'connect-the-dots' ),
-			/* translators: %d: number of orders. */
-			sprintf( _n( '%d order', '%d orders', $orders, 'connect-the-dots' ), $orders ),
-			/* translators: %d: number of vans. */
-			sprintf( _n( '%d van', '%d vans', $vans, 'connect-the-dots' ), $vans )
-		);
-
-		$first = '';
-
-		if ( $too_many_stops && $too_many_vans ) {
-			/* translators: 1: number of stops, 2: number of vans. */
-			$first = sprintf( _n( 'Plan the first %1$d with %2$d van', 'Plan the first %1$d with %2$d vans', $tier['max_vehicles'], 'connect-the-dots' ), $tier['remaining_stops'], $tier['max_vehicles'] );
-		} elseif ( $too_many_stops ) {
-			/* translators: %d: number of stops. */
-			$first = sprintf( __( 'Plan the first %d', 'connect-the-dots' ), $tier['remaining_stops'] );
-		} else {
-			/* translators: %d: number of vans. */
-			$first = sprintf( _n( 'Plan with %d van', 'Plan with %d vans', $tier['max_vehicles'], 'connect-the-dots' ), $tier['max_vehicles'] );
-		}
-
-		$buttons = '';
-
-		if ( ! $too_many_stops || $tier['remaining_stops'] > 0 ) {
-			$buttons .= sprintf( '<button type="submit" name="choice" value="first" class="button">%s</button> ', esc_html( $first ) );
-		}
-
-		if ( ! empty( $account['trial_available'] ) ) {
-			$buttons .= sprintf( '<button type="submit" name="choice" value="trial" class="button button-primary">%s</button>', esc_html__( 'Try a paid plan free for 30 days', 'connect-the-dots' ) );
-		} elseif ( is_string( $account['pricing_url'] ?? null ) ) {
-			$buttons .= sprintf( '<a href="%s" class="button button-primary" target="_blank" rel="noopener noreferrer">%s</a>', esc_url( $account['pricing_url'] ), esc_html__( 'Choose a paid plan', 'connect-the-dots' ) );
-		}
-
-		return sprintf(
-			'<div class="notice notice-warning inline ctdflow-choice"><p>%s %s</p><p>%s</p></div>',
-			esc_html( $limits ),
-			esc_html( $chosen ),
-			$buttons
-		);
 	}
 
 	/**
@@ -627,17 +521,33 @@ class RoutesPage {
 		}
 
 		$pricing = is_string( $account['pricing_url'] ?? null ) ? $account['pricing_url'] : '';
+		$message = $error->userMessage;
+		$tier    = null === $account ? null : Account::freeTier( $account );
 
-		if ( in_array( $error->errorCode, array( 'upgrade_required', 'scheduled_needs_paid_plan' ), true ) && '' !== $pricing ) {
+		if ( 'free_tier_exhausted' === $error->errorCode && null !== $tier ) {
+			$message = sprintf(
+				/* translators: 1: planned stops per month on the free plan, 2: planned stops left this month. */
+				_n(
+					'The free plan covers %1$d planned stops per month and %2$d stop is left this month, fewer than this plan needs. A stop is one address on one delivery day. Choose fewer orders or a paid plan.',
+					'The free plan covers %1$d planned stops per month and %2$d stops are left this month, fewer than this plan needs. A stop is one address on one delivery day. Choose fewer orders or a paid plan.',
+					$tier['remaining_stops'],
+					'connect-the-dots'
+				),
+				$tier['max_stops'],
+				$tier['remaining_stops']
+			);
+		}
+
+		if ( in_array( $error->errorCode, array( 'upgrade_required', 'scheduled_needs_paid_plan', 'free_tier_exhausted' ), true ) && '' !== $pricing ) {
 			return sprintf(
 				'<div class="notice notice-error inline"><p>%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></p></div>',
-				esc_html( $error->userMessage ),
+				esc_html( $message ),
 				esc_url( $pricing ),
 				esc_html__( 'See the plans', 'connect-the-dots' )
 			);
 		}
 
-		return $this->notice( 'error', $error->userMessage );
+		return $this->notice( 'error', $message );
 	}
 
 	/**
@@ -1033,25 +943,6 @@ class RoutesPage {
 	 */
 	private function activeVans(): array {
 		return array_values( array_filter( $this->settings->vehicles(), static fn( Vehicle $vehicle ): bool => $vehicle->active ) );
-	}
-
-	/**
-	 * The chosen ids of active vans, in the order of the settings.
-	 *
-	 * @param string[] $vehicleIds Chosen van ids.
-	 *
-	 * @return string[]
-	 */
-	private function chosenVanIds( array $vehicleIds ): array {
-		$ids = array();
-
-		foreach ( $this->activeVans() as $vehicle ) {
-			if ( in_array( $vehicle->id, $vehicleIds, true ) ) {
-				$ids[] = $vehicle->id;
-			}
-		}
-
-		return $ids;
 	}
 
 	/**

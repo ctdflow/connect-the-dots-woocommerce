@@ -25,7 +25,7 @@ class SettingsPage {
 	/**
 	 * @param Settings     $settings   The plugin settings.
 	 * @param Connection   $connection Connection with Connect the Dots.
-	 * @param Account|null $account    The Connect the Dots account, to explain the free tier.
+	 * @param Account|null $account    The Connect the Dots account, to know whether scheduled planning is available.
 	 */
 	public function __construct(
 		private Settings $settings,
@@ -100,7 +100,6 @@ class SettingsPage {
 
 		echo '<h2>' . esc_html__( 'Vans', 'connect-the-dots' ) . '</h2>';
 		echo '<p>' . esc_html__( 'Clear the name of a van to remove it. Fill in the empty row to add a van.', 'connect-the-dots' ) . '</p>';
-		$this->renderFreeTierVans( $account );
 		$this->renderVehicles( $name );
 
 		echo '<h2>' . esc_html__( 'Planning', 'connect-the-dots' ) . '</h2>';
@@ -147,47 +146,6 @@ class SettingsPage {
 		} catch ( ApiError $error ) {
 			return null;
 		}
-	}
-
-	/**
-	 * On the free tier, says that a plan with more vans needs a paid plan. CTD decides this through the
-	 * account, the plugin only explains it.
-	 *
-	 * @param array|null $account Account JSON, null when it is not known.
-	 */
-	private function renderFreeTierVans( ?array $account ): void {
-		if ( null === $account ) {
-			return;
-		}
-
-		$tier = Account::freeTier( $account );
-
-		if ( null === $tier ) {
-			return;
-		}
-
-		$text = sprintf(
-			/* translators: %d: number of vans in a plan on the free tier. */
-			_n(
-				'On the free plan a plan uses %d van. Planning with more vans at once needs a paid plan.',
-				'On the free plan a plan uses up to %d vans. Planning with more vans at once needs a paid plan.',
-				$tier['max_vehicles'],
-				'connect-the-dots'
-			),
-			$tier['max_vehicles']
-		);
-
-		if ( ! is_string( $account['pricing_url'] ?? null ) ) {
-			echo '<p class="description">' . esc_html( $text ) . '</p>';
-			return;
-		}
-
-		printf(
-			'<p class="description">%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></p>',
-			esc_html( $text ),
-			esc_url( $account['pricing_url'] ),
-			esc_html__( 'See the plans', 'connect-the-dots' )
-		);
 	}
 
 	/**

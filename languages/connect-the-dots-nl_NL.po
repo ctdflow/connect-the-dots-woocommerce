@@ -11,8 +11,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-11-20T13:16:07+00:00\n"
 "PO-Revision-Date: 2026-11-20 12:00+0000\n"
-"X-Generator: WP-CLI 2.12.0\n"
 "Language: nl_NL\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: connect-the-dots\n"
 
@@ -38,7 +38,7 @@ msgstr "https://ctdflow.com/nl"
 
 #: src/Admin/Menu.php:81
 #: src/Admin/Menu.php:82
-#: src/Admin/Menu.php:218
+#: src/Admin/Menu.php:220
 msgid "Delivery routes"
 msgstr "Bezorgritten"
 
@@ -47,24 +47,24 @@ msgid "The connection with Connect the Dots was cancelled. Try connecting again.
 msgstr "De verbinding met Connect the Dots is geannuleerd. Probeer het opnieuw te verbinden."
 
 #: src/Admin/Menu.php:159
-#: src/Admin/SettingsPage.php:129
+#: src/Admin/SettingsPage.php:128
 msgid "Your shop is connected to Connect the Dots."
 msgstr "Je winkel is verbonden met Connect the Dots."
 
-#: src/Admin/Menu.php:205
+#: src/Admin/Menu.php:207
 msgid "Your shop is disconnected from Connect the Dots."
 msgstr "Je winkel is niet meer verbonden met Connect the Dots."
 
-#: src/Admin/Menu.php:228
+#: src/Admin/Menu.php:232
 msgid "Routes"
 msgstr "Ritten"
 
-#: src/Admin/Menu.php:231
+#: src/Admin/Menu.php:235
 msgid "Settings"
 msgstr "Instellingen"
 
-#: src/Admin/Menu.php:303
-#: src/Admin/RoutesPage.php:715
+#: src/Admin/Menu.php:307
+#: src/Admin/RoutesPage.php:689
 msgid "Sorry, you are not allowed to do this."
 msgstr "Je hebt hier geen toestemming voor."
 
@@ -73,7 +73,7 @@ msgid "Delivery route"
 msgstr "Bezorgrit"
 
 #: src/Admin/RoutesPage.php:104
-#: src/Admin/RoutesPage.php:733
+#: src/Admin/RoutesPage.php:756
 msgid "Planning the routes…"
 msgstr "De ritten worden gepland…"
 
@@ -93,159 +93,91 @@ msgstr "Je sessie is verlopen. Laad de pagina opnieuw."
 msgid "Copied"
 msgstr "Gekopieerd"
 
-#: src/Admin/RoutesPage.php:227
+#: src/Admin/RoutesPage.php:223
 msgid "This day has not been planned yet."
 msgstr "Deze dag is nog niet gepland."
 
-#: src/Admin/RoutesPage.php:367
+#: src/Admin/RoutesPage.php:394
 msgid "Plan expired. Connect the Dots keeps plans for a limited time. Plan this day again to see its routes."
 msgstr "De planning is verlopen. Connect the Dots bewaart planningen een beperkte tijd. Plan deze dag opnieuw om de ritten te zien."
 
-#: src/Admin/RoutesPage.php:380
+#: src/Admin/RoutesPage.php:407
 msgid "Newer plans replaced this plan too many times in a row. Plan this day again to see its routes."
 msgstr "Deze planning is te vaak achter elkaar door een nieuwere vervangen. Plan deze dag opnieuw om de ritten te zien."
 
-#, php-format
-msgid "Your free plan makes plans of up to %1$d stops for this day, with %2$d van."
-msgid_plural "Your free plan makes plans of up to %1$d stops for this day, with %2$d vans."
-msgstr[0] "Je gratis abonnement maakt planningen tot %1$d stops voor deze dag, met %2$d bus."
-msgstr[1] "Je gratis abonnement maakt planningen tot %1$d stops voor deze dag, met %2$d bussen."
-
-#, php-format
-msgid "Free plan: plans of up to %1$d stops for this day, with %2$d van."
-msgid_plural "Free plan: plans of up to %1$d stops for this day, with %2$d vans."
-msgstr[0] "Gratis abonnement: planningen tot %1$d stops voor deze dag, met %2$d bus."
-msgstr[1] "Gratis abonnement: planningen tot %1$d stops voor deze dag, met %2$d bussen."
-
-msgid "Not sent, to stay within the free plan"
-msgstr "Niet verstuurd, om binnen het gratis abonnement te blijven"
-
-#. translators: 1: number of orders, like "26 orders", 2: number of vans, like "2 vans".
-#: src/Admin/RoutesPage.php:512
-#, php-format
-msgid "You chose %1$s and %2$s."
-msgstr "Je hebt %1$s en %2$s gekozen."
-
-#. translators: %d: number of orders.
-#: src/Admin/RoutesPage.php:514
-#, php-format
-msgid "%d order"
-msgid_plural "%d orders"
-msgstr[0] "%d bestelling"
-msgstr[1] "%d bestellingen"
-
-#. translators: %d: number of vans.
-#: src/Admin/RoutesPage.php:516
-#, php-format
-msgid "%d van"
-msgid_plural "%d vans"
-msgstr[0] "%d bus"
-msgstr[1] "%d bussen"
-
-#. translators: 1: number of stops, 2: number of vans.
-#: src/Admin/RoutesPage.php:523
-#, php-format
-msgid "Plan the first %1$d with %2$d van"
-msgid_plural "Plan the first %1$d with %2$d vans"
-msgstr[0] "Plan de eerste %1$d met %2$d bus"
-msgstr[1] "Plan de eerste %1$d met %2$d bussen"
-
-#. translators: %d: number of stops.
-#: src/Admin/RoutesPage.php:526
-#, php-format
-msgid "Plan the first %d"
-msgstr "Plan de eerste %d"
-
-#. translators: %d: number of vans.
-#: src/Admin/RoutesPage.php:529
-#, php-format
-msgid "Plan with %d van"
-msgid_plural "Plan with %d vans"
-msgstr[0] "Plan met %d bus"
-msgstr[1] "Plan met %d bussen"
-
-#: src/Admin/RoutesPage.php:539
-msgid "Try a paid plan free for 30 days"
-msgstr "Probeer een betaald abonnement 30 dagen gratis"
-
-#: src/Admin/RoutesPage.php:541
-msgid "Choose a paid plan"
-msgstr "Kies een betaald abonnement"
-
-#: src/Admin/RoutesPage.php:562
-#: views/connect.php:60
+#: src/Admin/RoutesPage.php:520
+#: views/connect.php:62
 msgid "Connect again"
 msgstr "Opnieuw verbinden"
 
-#: src/Admin/RoutesPage.php:572
-#: src/Admin/SettingsPage.php:189
-#: src/Admin/SettingsPage.php:352
+#: src/Admin/RoutesPage.php:546
+#: src/Admin/SettingsPage.php:328
 msgid "See the plans"
 msgstr "Bekijk de abonnementen"
 
-#: src/Admin/RoutesPage.php:753
+#: src/Admin/RoutesPage.php:776
 msgid "Free"
 msgstr "Gratis"
 
-#: src/Admin/RoutesPage.php:755
+#: src/Admin/RoutesPage.php:778
 msgid "Trial"
 msgstr "Proef"
 
-#: src/Admin/RoutesPage.php:757
-#: src/Admin/SettingsPage.php:253
+#: src/Admin/RoutesPage.php:780
+#: src/Admin/SettingsPage.php:211
 msgid "Active"
 msgstr "Actief"
 
-#: src/Admin/RoutesPage.php:759
+#: src/Admin/RoutesPage.php:782
 msgid "Blocked"
 msgstr "Geblokkeerd"
 
-#: src/Admin/RoutesPage.php:773
+#: src/Admin/RoutesPage.php:796
 msgid "Address not found"
 msgstr "Adres niet gevonden"
 
-#: src/Admin/RoutesPage.php:775
+#: src/Admin/RoutesPage.php:798
 msgid "Address is ambiguous"
 msgstr "Adres is niet eenduidig"
 
-#: src/Admin/RoutesPage.php:780
+#: src/Admin/RoutesPage.php:811
 msgid "Reason unknown"
 msgstr "Reden onbekend"
 
 #. translators: %s: reason given by the route planner.
-#: src/Admin/RoutesPage.php:783
+#: src/Admin/RoutesPage.php:814
 #, php-format
 msgid "Did not fit in the routes (%s)"
 msgstr "Paste niet in de ritten (%s)"
 
-#: src/Admin/RoutesPage.php:814
+#: src/Admin/RoutesPage.php:845
 msgid "No delivery address"
 msgstr "Geen bezorgadres"
 
-#: src/Admin/RoutesPage.php:814
+#: src/Admin/RoutesPage.php:845
 msgid "Country not supported"
 msgstr "Land niet ondersteund"
 
 #. translators: 1: start time, 2: end time.
-#: src/Admin/RoutesPage.php:875
+#: src/Admin/RoutesPage.php:906
 #, php-format
 msgid "%1$s to %2$s"
 msgstr "%1$s tot %2$s"
 
 #. translators: %d: minutes.
-#: src/Admin/RoutesPage.php:889
+#: src/Admin/RoutesPage.php:920
 #, php-format
 msgid "%d min"
 msgstr "%d min"
 
 #. translators: 1: hours, 2: minutes.
-#: src/Admin/RoutesPage.php:893
+#: src/Admin/RoutesPage.php:924
 #, php-format
 msgid "%1$d h %2$d min"
 msgstr "%1$d u %2$d min"
 
 #. translators: %s: distance in kilometres.
-#: src/Admin/RoutesPage.php:905
+#: src/Admin/RoutesPage.php:936
 #, php-format
 msgid "%s km"
 msgstr "%s km"
@@ -276,7 +208,7 @@ msgid "End address"
 msgstr "Eindadres"
 
 #: src/Admin/SettingsPage.php:101
-#: views/routes-page.php:128
+#: views/routes-page.php:129
 msgid "Vans"
 msgstr "Bussen"
 
@@ -284,162 +216,154 @@ msgstr "Bussen"
 msgid "Clear the name of a van to remove it. Fill in the empty row to add a van."
 msgstr "Maak de naam van een bus leeg om hem te verwijderen. Vul de lege rij in om een bus toe te voegen."
 
-#: src/Admin/SettingsPage.php:106
+#: src/Admin/SettingsPage.php:105
 msgid "Planning"
 msgstr "Plannen"
 
-#: src/Admin/SettingsPage.php:111
+#: src/Admin/SettingsPage.php:110
 msgid "Scheduled planning"
 msgstr "Automatisch plannen"
 
-#: src/Admin/SettingsPage.php:125
+#: src/Admin/SettingsPage.php:124
 msgid "Not connected. Connect your shop on the Routes tab."
 msgstr "Niet verbonden. Verbind je winkel op het tabblad Ritten."
 
-#: src/Admin/SettingsPage.php:133
+#: src/Admin/SettingsPage.php:132
 msgid "Disconnect"
 msgstr "Verbinding verbreken"
 
-#. translators: %d: number of vans in a plan on the free tier.
-#: src/Admin/SettingsPage.php:171
-#, php-format
-msgid "On the free plan a plan uses %d van. Planning with more vans at once needs a paid plan."
-msgid_plural "On the free plan a plan uses up to %d vans. Planning with more vans at once needs a paid plan."
-msgstr[0] "Met het gratis abonnement gebruikt een planning %d bus. Met meer bussen tegelijk plannen vraagt een betaald abonnement."
-msgstr[1] "Met het gratis abonnement gebruikt een planning maximaal %d bussen. Met meer bussen tegelijk plannen vraagt een betaald abonnement."
-
-#: src/Admin/SettingsPage.php:220
+#: src/Admin/SettingsPage.php:178
 msgid "Street and number"
 msgstr "Straat en huisnummer"
 
-#: src/Admin/SettingsPage.php:221
+#: src/Admin/SettingsPage.php:179
 msgid "Postcode"
 msgstr "Postcode"
 
-#: src/Admin/SettingsPage.php:222
+#: src/Admin/SettingsPage.php:180
 msgid "City"
 msgstr "Plaats"
 
-#: src/Admin/SettingsPage.php:223
+#: src/Admin/SettingsPage.php:181
 msgid "Country code"
 msgstr "Landcode"
 
-#: src/Admin/SettingsPage.php:253
+#: src/Admin/SettingsPage.php:211
 msgid "Name"
 msgstr "Naam"
 
-#: src/Admin/SettingsPage.php:253
+#: src/Admin/SettingsPage.php:211
 msgid "Available from"
 msgstr "Beschikbaar vanaf"
 
-#: src/Admin/SettingsPage.php:253
+#: src/Admin/SettingsPage.php:211
 msgid "Available until"
 msgstr "Beschikbaar tot"
 
-#: src/Admin/SettingsPage.php:253
+#: src/Admin/SettingsPage.php:211
 msgid "Capacity (items)"
 msgstr "Capaciteit (artikelen)"
 
-#: src/Admin/SettingsPage.php:291
+#: src/Admin/SettingsPage.php:249
 msgid "Minutes per stop"
 msgstr "Minuten per stop"
 
-#: src/Admin/SettingsPage.php:295
+#: src/Admin/SettingsPage.php:253
 msgid "Plan orders with status"
 msgstr "Bestellingen plannen met status"
 
-#: src/Admin/SettingsPage.php:309
+#: src/Admin/SettingsPage.php:284
 msgid "Delivery date comes from"
 msgstr "De bezorgdatum komt van"
 
-#: src/Admin/SettingsPage.php:311
+#: src/Admin/SettingsPage.php:286
 msgid "Detect automatically"
 msgstr "Automatisch herkennen"
 
-#: src/Admin/SettingsPage.php:312
+#: src/Admin/SettingsPage.php:287
 msgid "Order Delivery Date plugin"
 msgstr "Order Delivery Date plugin"
 
-#: src/Admin/SettingsPage.php:313
+#: src/Admin/SettingsPage.php:288
 msgid "Woo Delivery plugin"
 msgstr "Woo Delivery plugin"
 
-#: src/Admin/SettingsPage.php:314
+#: src/Admin/SettingsPage.php:289
 msgid "The order status only"
 msgstr "Alleen de bestelstatus"
 
-#: src/Admin/SettingsPage.php:319
+#: src/Admin/SettingsPage.php:294
 msgid "Order note"
 msgstr "Bestelnotitie"
 
-#: src/Admin/SettingsPage.php:325
+#: src/Admin/SettingsPage.php:300
 msgid "Add a note to an order when it is planned"
 msgstr "Voeg een notitie toe aan een bestelling als die is gepland"
 
-#: src/Admin/SettingsPage.php:329
+#: src/Admin/SettingsPage.php:304
 msgid "Status after planning"
 msgstr "Status na het plannen"
 
-#: src/Admin/SettingsPage.php:330
+#: src/Admin/SettingsPage.php:305
 msgid "Do not change the status"
 msgstr "De status niet wijzigen"
 
-#: src/Admin/SettingsPage.php:350
+#: src/Admin/SettingsPage.php:326
 msgid "Scheduled planning needs a paid plan. Connect your shop and choose a plan to turn it on."
 msgstr "Automatisch plannen vraagt een betaald abonnement. Verbind je winkel en kies een abonnement om het aan te zetten."
 
-#: src/Admin/SettingsPage.php:356
+#: src/Admin/SettingsPage.php:332
 msgid "Plan automatically"
 msgstr "Automatisch plannen"
 
-#: src/Admin/SettingsPage.php:370
+#: src/Admin/SettingsPage.php:346
 msgid "Plan routes every day at the time below"
 msgstr "Plan elke dag de ritten op de tijd hieronder"
 
-#: src/Admin/SettingsPage.php:374
+#: src/Admin/SettingsPage.php:350
 msgid "Time"
 msgstr "Tijd"
 
-#: src/Admin/SettingsPage.php:376
+#: src/Admin/SettingsPage.php:352
 msgid "In the timezone of your site."
 msgstr "In de tijdzone van je site."
 
-#: src/Admin/SettingsPage.php:379
+#: src/Admin/SettingsPage.php:355
 msgid "Days ahead"
 msgstr "Dagen vooruit"
 
-#: src/Admin/SettingsPage.php:384
+#: src/Admin/SettingsPage.php:360
 msgid "Last automatic run"
 msgstr "Laatste automatische planning"
 
-#: src/Admin/SettingsPage.php:386
+#: src/Admin/SettingsPage.php:362
 msgid "WooCommerce starts the planning with Action Scheduler, which runs when someone visits your site, so on a quiet site the planning can start late. For an exact time, let a real cron job call wp-cron.php every few minutes. The planned runs are listed under WooCommerce > Status > Scheduled Actions."
 msgstr "WooCommerce start de planning met Action Scheduler, dat draait als iemand je site bezoekt, dus op een rustige site kan het plannen te laat beginnen. Voor een exacte tijd laat je een echte cronjob elke paar minuten wp-cron.php aanroepen. De geplande runs staan onder WooCommerce > Status > Geplande acties."
 
-#: src/Admin/SettingsPage.php:397
+#: src/Admin/SettingsPage.php:373
 msgid "Has not run yet."
 msgstr "Nog niet uitgevoerd."
 
 #. translators: %s: date and time.
-#: src/Admin/SettingsPage.php:405
+#: src/Admin/SettingsPage.php:381
 #, php-format
 msgid "%s: planned."
 msgstr "%s: gepland."
 
 #. translators: %s: date and time.
-#: src/Admin/SettingsPage.php:425
+#: src/Admin/SettingsPage.php:384
 #, php-format
 msgid "%s: sent, the routes are not ready yet."
 msgstr "%s: verstuurd, de ritten zijn nog niet klaar."
 
 #. translators: 1: date and time, 2: reason code.
-#: src/Admin/SettingsPage.php:408
+#: src/Admin/SettingsPage.php:397
 #, php-format
 msgid "%1$s: not planned (%2$s)."
 msgstr "%1$s: niet gepland (%2$s)."
 
 #. translators: 1: date and time, 2: reason code.
-#: src/Admin/SettingsPage.php:411
+#: src/Admin/SettingsPage.php:400
 #, php-format
 msgid "%1$s: failed (%2$s)."
 msgstr "%1$s: mislukt (%2$s)."
@@ -460,32 +384,28 @@ msgstr "Hiervoor is een betaald Connect the Dots abonnement nodig."
 msgid "Your Connect the Dots account is blocked. Contact Connect the Dots support."
 msgstr "Je Connect the Dots account is geblokkeerd. Neem contact op met de support van Connect the Dots."
 
-#: src/ApiError.php:114
-msgid "The daily limit of Connect the Dots is reached. Try again tomorrow."
-msgstr "De daglimiet van Connect the Dots is bereikt. Probeer het morgen opnieuw."
-
-#: src/ApiError.php:116
+#: src/ApiError.php:118
 #: src/PlanFollower.php:115
 msgid "Route planning is temporarily unavailable. Try again in a few minutes."
 msgstr "Ritten plannen is tijdelijk niet beschikbaar. Probeer het over een paar minuten opnieuw."
 
-#: src/ApiError.php:120
+#: src/ApiError.php:122
 msgid "Connect the Dots received too many requests. Try again in a minute."
 msgstr "Connect the Dots kreeg te veel verzoeken. Probeer het over een minuut opnieuw."
 
-#: src/ApiError.php:124
+#: src/ApiError.php:126
 msgid "Connect the Dots had a problem. Try again in a few minutes."
 msgstr "Connect the Dots had een storing. Probeer het over een paar minuten opnieuw."
 
-#: src/ApiError.php:127
+#: src/ApiError.php:129
 msgid "Connect the Dots did not accept this request."
 msgstr "Connect the Dots heeft dit verzoek niet geaccepteerd."
 
-#: src/Connection.php:71
+#: src/Connection.php:85
 msgid "The connection attempt is not valid or has expired. Start connecting again."
 msgstr "De verbindingspoging is niet geldig of is verlopen. Begin opnieuw met verbinden."
 
-#: src/Connection.php:84
+#: src/Connection.php:98
 msgid "The connection attempt is not valid. Start connecting again."
 msgstr "De verbindingspoging is niet geldig. Begin opnieuw met verbinden."
 
@@ -493,16 +413,16 @@ msgstr "De verbindingspoging is niet geldig. Begin opnieuw met verbinden."
 msgid "The connection with Connect the Dots is being renewed. Try again in a few seconds."
 msgstr "De verbinding met Connect the Dots wordt vernieuwd. Probeer het over een paar seconden opnieuw."
 
-#: src/Connection.php:215
+#: src/Connection.php:314
 msgid "Connect the Dots did not register this shop. Try again in a few minutes."
 msgstr "Connect the Dots heeft deze winkel niet geregistreerd. Probeer het over een paar minuten opnieuw."
 
-#: src/Connection.php:263
+#: src/Connection.php:362
 msgid "Connect the Dots sent an unexpected answer. Try connecting again."
 msgstr "Connect the Dots gaf een onverwacht antwoord. Probeer opnieuw te verbinden."
 
 #. translators: %s: time of delivery as H:i.
-#: src/DeliverySync.php:171
+#: src/DeliverySync.php:177
 #, php-format
 msgid "Delivered at %s"
 msgstr "Afgeleverd om %s"
@@ -533,47 +453,48 @@ msgstr "De planning is geannuleerd. Plan opnieuw om ritten te krijgen."
 msgid "The planning failed. Try again in a few minutes."
 msgstr "De planning is mislukt. Probeer het over een paar minuten opnieuw."
 
-#: src/Planner.php:67
+#: src/Planner.php:68
 msgid "There are no orders to plan. Choose at least one order with a delivery address."
 msgstr "Er zijn geen bestellingen om te plannen. Kies minstens één bestelling met een bezorgadres."
 
-#: src/Planner.php:79
+#: src/Planner.php:80
 msgid "Choose at least one active van. Vans are set up on the Settings tab."
 msgstr "Kies minstens één actieve bus. Bussen stel je in op het tabblad Instellingen."
 
-#: src/Planner.php:86
+#: src/Planner.php:87
 msgid "The depot has no address or country. Fill in the depot on the Settings tab."
 msgstr "Het depot heeft geen adres of land. Vul het depot in op het tabblad Instellingen."
 
-#: src/Plugin.php:166
+#: src/Plugin.php:184
 msgid "Connect the Dots needs WooCommerce. Install and activate WooCommerce to plan delivery routes."
 msgstr "Connect the Dots heeft WooCommerce nodig. Installeer en activeer WooCommerce om bezorgritten te plannen."
 
 #. translators: 1: name of the van, 2: expected arrival time as H:i.
-#: src/ResultApplier.php:142
+#: src/ResultApplier.php:201
 #, php-format
 msgid "Delivery route %1$s, expected arrival %2$s"
 msgstr "Bezorgrit %1$s, verwachte aankomst %2$s"
 
-#: src/ScheduledPlanning.php:307
+#: src/ScheduledPlanning.php:315
 msgid "The shop is not connected to Connect the Dots. Connect it on the Routes tab."
 msgstr "De winkel is niet verbonden met Connect the Dots. Verbind hem op het tabblad Ritten."
 
-#: src/ScheduledPlanning.php:376
+#: src/ScheduledPlanning.php:450
 msgid "Newer plans replaced this plan too many times in a row."
 msgstr "Deze planning is te vaak achter elkaar door een nieuwere vervangen."
 
-#: src/ScheduledPlanning.php:408
+#: src/ScheduledPlanning.php:483
 msgid "The plan is not done yet. Open the Routes tab later to see the routes."
 msgstr "De planning is nog niet klaar. Open later het tabblad Ritten om de ritten te zien."
 
-#. translators: %s: site name.
-#: src/ScheduledPlanning.php:376
+#. translators: 1: site name, 2: delivery date.
+#: src/ScheduledPlanning.php:380
 #, php-format
 msgid "[%1$s] Connect the Dots: new orders for %2$s are not on the routes"
 msgstr "[%1$s] Connect the Dots: nieuwe bestellingen voor %2$s staan niet op de ritten"
 
-#: src/ScheduledPlanning.php:382
+#. translators: 1: number of orders, 2: delivery date, 3: link to the Routes screen.
+#: src/ScheduledPlanning.php:386
 #, php-format
 msgid ""
 "%1$d order for %2$s came in after the routes of that day were planned. The automatic planning left those routes alone, so this order is not on them.\n"
@@ -596,13 +517,14 @@ msgstr[1] ""
 "Open het scherm Ritten en plan de dag opnieuw om ze toe te voegen:\n"
 "%3$s"
 
-#: src/ScheduledPlanning.php:445
+#. translators: %s: site name.
+#: src/ScheduledPlanning.php:522
 #, php-format
 msgid "[%s] Connect the Dots could not plan your routes automatically"
 msgstr "[%s] Connect the Dots kon je ritten niet automatisch plannen"
 
 #. translators: 1: delivery date, 2: reason, 3: link to the Routes screen.
-#: src/ScheduledPlanning.php:450
+#: src/ScheduledPlanning.php:527
 #, php-format
 msgid ""
 "The automatic planning of %1$s did not work.\n"
@@ -623,23 +545,23 @@ msgstr ""
 msgid "Van 1"
 msgstr "Bus 1"
 
-#: src/Settings.php:174
+#: src/Settings.php:205
 msgid "Sorry, you are not allowed to change these settings."
 msgstr "Je mag deze instellingen niet wijzigen."
 
-#: src/Settings.php:196
+#: src/Settings.php:227
 msgid "depot"
 msgstr "depot"
 
-#: src/Settings.php:200
+#: src/Settings.php:231
 msgid "end address"
 msgstr "eindadres"
 
-#: src/Settings.php:239
+#: src/Settings.php:280
 msgid "The planning time must be a time like 18:00. The previous time is kept."
 msgstr "De planningstijd moet een tijd zijn zoals 18:00. De vorige tijd blijft bewaard."
 
-#: src/Settings.php:316
+#: src/Settings.php:357
 msgid "Two vans have the same name. Give every van its own name. The previous vans are kept."
 msgstr "Twee bussen hebben dezelfde naam. Geef elke bus een eigen naam. De vorige bussen blijven bewaard."
 
@@ -652,108 +574,108 @@ msgid "Keep at least one van. The previous vans are kept."
 msgstr "Houd minstens één bus over. De vorige bussen blijven staan."
 
 #. translators: %s: name of the van.
-#: src/Settings.php:350
+#: src/Settings.php:391
 #, php-format
 msgid "The times of %s are not valid: use times like 08:00 and let the van start before it ends. The previous times are kept."
 msgstr "De tijden van %s zijn niet geldig: gebruik tijden zoals 08:00 en laat de bus eerder beginnen dan eindigen. De vorige tijden blijven bewaard."
 
 #. translators: %s: the kind of address, like depot.
-#: src/Settings.php:403
+#: src/Settings.php:451
 #, php-format
 msgid "The country of the %s must be a two letter code like NL. The previous country is kept."
 msgstr "Het land van het %s moet een code van twee letters zijn, zoals NL. Het vorige land blijft bewaard."
 
-#: views/connect.php:19
+#: views/connect.php:21
 msgid "Connect your shop to Connect the Dots to plan the routes of your deliveries. You choose a day, Connect the Dots plans the orders of that day over your vans, and every driver gets a link with the route."
 msgstr "Verbind je winkel met Connect the Dots om de ritten van je bezorgingen te plannen. Jij kiest een dag, Connect the Dots plant de bestellingen van die dag over je bussen en elke chauffeur krijgt een link met de rit."
 
-#: views/connect.php:21
+#: views/connect.php:23
 msgid "What goes to Connect the Dots"
 msgstr "Wat er naar Connect the Dots gaat"
 
-#: views/connect.php:22
+#: views/connect.php:24
 msgid "For every order you plan:"
 msgstr "Voor elke bestelling die je plant:"
 
-#: views/connect.php:24
+#: views/connect.php:26
 msgid "the order ID, as reference"
 msgstr "het bestelnummer, als referentie"
 
-#: views/connect.php:25
+#: views/connect.php:27
 msgid "the delivery address: street with house number, postcode and city"
 msgstr "het bezorgadres: straat met huisnummer, postcode en plaats"
 
-#: views/connect.php:26
+#: views/connect.php:28
 msgid "the time window, if the order has one"
 msgstr "het tijdvak, als de bestelling er een heeft"
 
-#: views/connect.php:27
+#: views/connect.php:29
 msgid "the number of items"
 msgstr "het aantal artikelen"
 
-#: views/connect.php:28
+#: views/connect.php:30
 msgid "how long a stop takes, the minutes per stop from your settings"
 msgstr "hoe lang een stop duurt, de minuten per stop uit je instellingen"
 
-#: views/connect.php:30
+#: views/connect.php:32
 msgid "For every van:"
 msgstr "Voor elke bus:"
 
-#: views/connect.php:32
+#: views/connect.php:34
 msgid "the name of each van"
 msgstr "de naam van elke bus"
 
-#: views/connect.php:33
+#: views/connect.php:35
 msgid "its start and end address"
 msgstr "het start- en eindadres"
 
-#: views/connect.php:34
+#: views/connect.php:36
 msgid "the times it is available"
 msgstr "de tijden waarop de bus beschikbaar is"
 
-#: views/connect.php:35
+#: views/connect.php:37
 msgid "its capacity, if you set one"
 msgstr "de capaciteit, als je die instelt"
 
-#: views/connect.php:37
+#: views/connect.php:39
 msgid "For every plan:"
 msgstr "Voor elke planning:"
 
-#: views/connect.php:39
+#: views/connect.php:41
 msgid "the delivery date and the time zone of your site"
 msgstr "de bezorgdatum en de tijdzone van je site"
 
-#: views/connect.php:40
+#: views/connect.php:42
 msgid "the web address of your shop"
 msgstr "het webadres van je winkel"
 
-#: views/connect.php:41
+#: views/connect.php:43
 msgid "the depot address and its country"
 msgstr "het adres van het depot en het land"
 
-#: views/connect.php:42
+#: views/connect.php:44
 msgid "whether the plan was started by hand or automatically"
 msgstr "of de planning met de hand of automatisch is gestart"
 
-#: views/connect.php:44
+#: views/connect.php:46
 msgid "Never names, e-mail addresses, phone numbers, amounts or products."
 msgstr "Nooit namen, e-mailadressen, telefoonnummers, bedragen of producten."
 
 #. translators: 1: link to the privacy statement, 2: link to the terms.
-#: views/connect.php:49
+#: views/connect.php:51
 #, php-format
 msgid "Read the %1$s and the %2$s of Connect the Dots."
 msgstr "Lees de %1$s en de %2$s van Connect the Dots."
 
-#: views/connect.php:50
+#: views/connect.php:52
 msgid "privacy statement"
 msgstr "privacyverklaring"
 
-#: views/connect.php:51
+#: views/connect.php:53
 msgid "terms"
 msgstr "voorwaarden"
 
-#: views/connect.php:60
+#: views/connect.php:62
 msgid "Connect to Connect the Dots"
 msgstr "Verbinden met Connect the Dots"
 
@@ -788,17 +710,17 @@ msgid "Stop"
 msgstr "Stop"
 
 #: views/plan-result.php:50
-#: views/routes-page.php:93
+#: views/routes-page.php:94
 msgid "Order"
 msgstr "Bestelling"
 
 #: views/plan-result.php:51
-#: views/routes-page.php:94
+#: views/routes-page.php:95
 msgid "Address"
 msgstr "Adres"
 
 #: views/plan-result.php:52
-#: views/routes-page.php:95
+#: views/routes-page.php:96
 msgid "Time window"
 msgstr "Tijdvak"
 
@@ -807,70 +729,70 @@ msgid "Not planned"
 msgstr "Niet gepland"
 
 #: views/plan-result.php:86
-#: views/routes-page.php:122
+#: views/routes-page.php:123
 msgid "Edit order"
 msgstr "Bestelling bewerken"
 
 #. translators: 1: organisation name, 2: plan such as Free or Active.
-#: views/routes-page.php:34
+#: views/routes-page.php:35
 #, php-format
 msgid "Connected: %1$s · %2$s"
 msgstr "Verbonden: %1$s · %2$s"
 
-#: views/routes-page.php:50
+#: views/routes-page.php:51
 msgid "Delivery day"
 msgstr "Bezorgdag"
 
-#: views/routes-page.php:54
+#: views/routes-page.php:55
 msgid "Add orders by ID"
 msgstr "Bestellingen toevoegen met nummer"
 
-#: views/routes-page.php:55
+#: views/routes-page.php:56
 msgid "For example 1043, 1051"
 msgstr "Bijvoorbeeld 1043, 1051"
 
-#: views/routes-page.php:57
+#: views/routes-page.php:58
 msgid "Show"
 msgstr "Toon"
 
 #. translators: %d: number of orders.
-#: views/routes-page.php:67
+#: views/routes-page.php:68
 #, php-format
 msgid "%d order to plan"
 msgid_plural "%d orders to plan"
 msgstr[0] "%d bestelling om te plannen"
 msgstr[1] "%d bestellingen om te plannen"
 
-#: views/routes-page.php:86
+#: views/routes-page.php:87
 msgid "There are no orders to plan for this day."
 msgstr "Er zijn geen bestellingen om te plannen voor deze dag."
 
-#: views/routes-page.php:88
+#: views/routes-page.php:89
 msgid "Uncheck an order to leave it out of the plan."
 msgstr "Vink een bestelling uit om hem niet mee te plannen."
 
-#: views/routes-page.php:92
-#: views/routes-page.php:160
+#: views/routes-page.php:93
+#: views/routes-page.php:147
 msgid "Plan"
 msgstr "Plan"
 
-#: views/routes-page.php:96
+#: views/routes-page.php:97
 msgid "Items"
 msgstr "Artikelen"
 
-#: views/routes-page.php:116
+#: views/routes-page.php:117
 msgid "Cannot be planned"
 msgstr "Kan niet worden gepland"
 
-#: views/routes-page.php:131
+#: views/routes-page.php:132
 msgid "There is no active van."
 msgstr "Er is geen actieve bus."
 
-#: views/routes-page.php:132
+#: views/routes-page.php:133
 msgid "Set up your vans"
 msgstr "Stel je bussen in"
 
-#: views/routes-page.php:160
+#: views/routes-page.php:147
 msgid "Plan again"
 msgstr "Opnieuw plannen"
 
@@ -878,11 +800,11 @@ msgstr "Opnieuw plannen"
 msgid "Expected"
 msgstr "Verwacht"
 
-#: src/Admin/RoutesPage.php:337
+#: src/Admin/RoutesPage.php:364
 msgid "The routes below still apply."
 msgstr "De ritten hieronder blijven gelden."
 
-#: src/Admin/RoutesPage.php:777
+#: src/Admin/RoutesPage.php:800
 msgid "No road leads to this address. Check the address."
 msgstr "Dit adres is niet over de weg te bereiken. Controleer het adres."
 
@@ -897,7 +819,7 @@ msgid "No road leads to the end address of %s. Check it on the Settings tab."
 msgstr "Het eindadres van %s is niet over de weg te bereiken. Controleer het op het tabblad Instellingen."
 
 #. translators: %d: number of delivered orders.
-#: views/routes-page.php:78
+#: views/routes-page.php:79
 #, php-format
 msgid "%d order of this day is delivered already and is left out."
 msgid_plural "%d orders of this day are delivered already and are left out."
@@ -912,47 +834,74 @@ msgstr "Afgeleverd"
 msgid "Selected. Press Ctrl+C or ⌘C."
 msgstr "Geselecteerd. Druk op Ctrl+C of ⌘C."
 
-#: src/Admin/SettingsPage.php:381
+#: src/Admin/SettingsPage.php:357
 msgid "1 is tomorrow, 0 is today."
 msgstr "1 is morgen, 0 is vandaag."
 
-#: src/Admin/SettingsPage.php:331
+#: src/Admin/SettingsPage.php:306
 msgid "WooCommerce sends the customer the email of that status, for example Completed sends the order complete email."
 msgstr "WooCommerce stuurt de klant de e-mail van die status, Afgerond stuurt bijvoorbeeld de e-mail dat de bestelling is afgerond."
 
 #. translators: 1: date and time, 2: delivery date.
-#: src/Admin/SettingsPage.php:410
+#: src/Admin/SettingsPage.php:388
 #, php-format
 msgid "%1$s: not planned, because %2$s already has routes. Plan that day again on the Routes tab to replace them."
 msgstr "%1$s: niet gepland, omdat %2$s al ritten heeft. Plan die dag opnieuw op het tabblad Ritten om ze te vervangen."
 
-#: src/Admin/SettingsPage.php:431
+#. translators: 1: date and time, 2: delivery date.
+#: src/Admin/SettingsPage.php:393
 #, php-format
 msgid "%1$s: not planned, because %2$s already has routes. New orders came in since and are not on them. Plan that day again on the Routes tab to add them."
 msgstr "%1$s: niet gepland, omdat %2$s al ritten heeft. Daarna zijn er nieuwe bestellingen binnengekomen die niet op de ritten staan. Plan die dag opnieuw op het tabblad Ritten om ze toe te voegen."
 
-#: src/Admin/SettingsPage.php:309
+#: src/Admin/SettingsPage.php:268
 msgid "Plan orders with shipping method"
 msgstr "Plan bestellingen met verzendmethode"
 
-#: src/Admin/SettingsPage.php:322
+#: src/Admin/SettingsPage.php:281
 msgid "Choose none to plan orders with any shipping method. Orders that are picked up, and orders with only virtual products, are always left out."
 msgstr "Kies er geen om bestellingen met elke verzendmethode te plannen. Bestellingen die worden afgehaald en bestellingen met alleen virtuele producten blijven altijd buiten de planning."
 
+#: src/ApiError.php:116
 msgid "The working hours of every van are over for today. Plan another day or set later hours for a van."
 msgstr "De werktijden van alle bussen zijn voorbij voor vandaag. Plan een andere dag of geef een bus latere tijden."
 
+#: src/DeliverySync.php:203
 msgid "The driver undid the delivery"
 msgstr "De chauffeur heeft de levering ongedaan gemaakt"
 
+#: src/Admin/RoutesPage.php:802
 msgid "No van has what this stop needs"
 msgstr "Geen bus heeft wat deze stop nodig heeft"
 
+#: src/Admin/RoutesPage.php:804
 msgid "Larger than what any van can carry"
 msgstr "Groter dan wat een bus kan meenemen"
 
+#: src/Admin/RoutesPage.php:806
 msgid "No van can reach the time window within its working hours"
 msgstr "Geen bus haalt het tijdvak binnen zijn werktijden"
 
+#: src/Admin/RoutesPage.php:808
 msgid "Did not fit: the vans are full or out of time. Add a van or plan fewer stops."
 msgstr "Paste niet: de bussen zijn vol of hebben geen tijd meer. Voeg een bus toe of plan minder stops."
+
+#. translators: 1: planned stops left this month, 2: planned stops per month on the free plan.
+#: src/Admin/RoutesPage.php:318
+#, php-format
+msgid "Free plan: %1$d of %2$d planned stop left this month. A stop is one address on one delivery day."
+msgid_plural "Free plan: %1$d of %2$d planned stops left this month. A stop is one address on one delivery day."
+msgstr[0] "Gratis abonnement: nog %1$d van %2$d geplande stops over deze maand. Een stop is één adres op één bezorgdag."
+msgstr[1] "Gratis abonnement: nog %1$d van %2$d geplande stops over deze maand. Een stop is één adres op één bezorgdag."
+
+#. translators: 1: planned stops per month on the free plan, 2: planned stops left this month.
+#: src/Admin/RoutesPage.php:530
+#, php-format
+msgid "The free plan covers %1$d planned stops per month and %2$d stop is left this month, fewer than this plan needs. A stop is one address on one delivery day. Choose fewer orders or a paid plan."
+msgid_plural "The free plan covers %1$d planned stops per month and %2$d stops are left this month, fewer than this plan needs. A stop is one address on one delivery day. Choose fewer orders or a paid plan."
+msgstr[0] "Het gratis abonnement dekt %1$d geplande stops per maand en er is deze maand nog %2$d stop over, minder dan deze planning nodig heeft. Een stop is één adres op één bezorgdag. Kies minder bestellingen of een betaald abonnement."
+msgstr[1] "Het gratis abonnement dekt %1$d geplande stops per maand en er zijn deze maand nog %2$d stops over, minder dan deze planning nodig heeft. Een stop is één adres op één bezorgdag. Kies minder bestellingen of een betaald abonnement."
+
+#: src/ApiError.php:114
+msgid "The free plan has too few planned stops left this month for this plan. Choose fewer orders or a paid plan."
+msgstr "Het gratis abonnement heeft deze maand te weinig geplande stops over voor deze planning. Kies minder bestellingen of een betaald abonnement."

@@ -165,20 +165,6 @@ class PlannerTest extends TestCase {
 		$this->assertSame( array( 'GET', 'POST', 'GET' ), array_column( $this->ctd->requests(), 'method' ) );
 	}
 
-	public function test_first_orders_sorts_by_time_window_start_then_order_number(): void {
-		$this->useWooDelivery();
-		$no_window = $this->order( array( 'delivery_date' => $this->day ) );
-		$late      = $this->order( array( 'delivery_date' => $this->day, 'delivery_time' => '13:00 - 15:00' ) );
-		$early_1   = $this->order( array( 'delivery_date' => $this->day, 'delivery_time' => '09:00 - 11:00' ) );
-		$early_2   = $this->order( array( 'delivery_date' => $this->day, 'delivery_time' => '09:00 - 10:00' ) );
-		$ids       = array( $no_window->get_id(), $late->get_id(), $early_1->get_id(), $early_2->get_id() );
-
-		$this->assertSame(
-			array( $early_1->get_id(), $early_2->get_id(), $late->get_id() ),
-			Planner::create()->firstOrders( $this->day, $ids, 3 )
-		);
-	}
-
 	public function test_the_account_is_fetched_with_the_day_and_site_and_cached_for_a_minute(): void {
 		$this->ctd->respond( 'GET', '/v1/woocommerce/account', 200, array( 'organization' => 'Bakkerij', 'billing_status' => 'free' ) );
 
@@ -192,7 +178,7 @@ class PlannerTest extends TestCase {
 	}
 
 	public function test_the_free_tier_of_an_account(): void {
-		$tier = array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 20 );
+		$tier = array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 62 );
 
 		$this->assertSame( $tier, Account::freeTier( array( 'paid' => false, 'free_tier' => $tier ) ) );
 		$this->assertNull( Account::freeTier( array( 'paid' => true, 'free_tier' => null ) ) );
@@ -252,12 +238,6 @@ class PlannerTest extends TestCase {
 
 		$this->assertSame( array(), $this->ctd->requests() );
 		$this->assertNull( ( new PlanStore() )->get( $this->day ) );
-	}
-
-	private function useWooDelivery(): void {
-		$settings                = get_option( Settings::OPTION );
-		$settings['date_source'] = 'woo-delivery';
-		update_option( Settings::OPTION, $settings );
 	}
 
 	/**

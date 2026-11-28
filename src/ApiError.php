@@ -110,8 +110,8 @@ class ApiError extends RuntimeException {
 				return __( 'This needs a paid Connect the Dots plan.', 'connect-the-dots' );
 			case 'organization_blocked':
 				return __( 'Your Connect the Dots account is blocked. Contact Connect the Dots support.', 'connect-the-dots' );
-			case 'daily_limit_reached':
-				return __( 'The daily limit of Connect the Dots is reached. Try again tomorrow.', 'connect-the-dots' );
+			case 'free_tier_exhausted':
+				return __( 'The free plan has too few planned stops left this month for this plan. Choose fewer orders or a paid plan.', 'connect-the-dots' );
 			case 'working_hours_over':
 				return __( 'The working hours of every van are over for today. Plan another day or set later hours for a van.', 'connect-the-dots' );
 			case 'routing_unavailable':

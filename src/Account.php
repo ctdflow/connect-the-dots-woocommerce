@@ -58,7 +58,7 @@ class Account {
 	}
 
 	/**
-	 * Forgets the cached account of a day, for instance after planning started a trial.
+	 * Forgets the cached account of a day, for instance after planning used stops of this month.
 	 *
 	 * @param string $date Delivery date as Y-m-d.
 	 */

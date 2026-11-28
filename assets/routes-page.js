@@ -10,7 +10,6 @@
 	const form = document.getElementById( 'ctdflow-plan-form' );
 	const result = document.getElementById( 'ctdflow-result' );
 	const messages = document.getElementById( 'ctdflow-messages' );
-	const choice = document.getElementById( 'ctdflow-choice' );
 
 	if ( ! config ) {
 		return;
@@ -114,7 +113,7 @@
 	}
 
 	/**
-	 * Shows the plan and free plan line the server sent after planning, which may have started a trial.
+	 * Shows the plan and free plan line the server sent after planning, which used stops of this month.
 	 *
 	 * @param {Object} data Data of the plan response.
 	 */
@@ -137,10 +136,8 @@
 
 			const fields = new FormData( form );
 			const date = fields.get( 'date' );
-			const submitter = event.submitter;
 
 			fields.set( 'action', 'ctdflow_plan' );
-			fields.set( 'choice', submitter && 'choice' === submitter.name ? submitter.value : '' );
 			messages.replaceChildren();
 			setBusy( true );
 
@@ -149,18 +146,13 @@
 					const data = response.data;
 
 					if ( response.success ) {
-						choice.replaceChildren();
 						result.innerHTML = data.html || '';
 						showAccount( data );
 						poll( date );
 						return;
 					}
 
-					if ( 'choice_needed' === data.code ) {
-						choice.innerHTML = data.html || '';
-					} else {
-						messages.innerHTML = data.html || '';
-					}
+					messages.innerHTML = data.html || '';
 
 					setBusy( false );
 				} )

@@ -135,28 +135,6 @@ class RoutesPageTest extends TestCase {
 		$this->assertStringContainsString( 'value="' . $planned_elsewhere->get_id() . '" checked', $this->renderedPage( array( 'add' => (string) $planned_elsewhere->get_id() ) ) );
 	}
 
-	public function test_a_free_account_with_more_orders_than_the_free_tier_gets_the_choice_first(): void {
-		$this->connect();
-		$this->account();
-		$this->orders( 26 );
-
-		$page = $this->renderedPage();
-
-		$this->assertStringContainsString( 'Plan the first 25', $page );
-		$this->assertStringContainsString( 'Try a paid plan free for 30 days', $page );
-	}
-
-	public function test_the_choice_keeps_its_buttons_when_escaped_on_output(): void {
-		$this->connect();
-		$this->account();
-		$this->orders( 26 );
-
-		$page = $this->renderedPage();
-
-		$this->assertStringContainsString( '<button type="submit" name="choice" value="first" class="button">Plan the first 25</button>', $page );
-		$this->assertStringContainsString( '<button type="submit" name="choice" value="trial" class="button button-primary">', $page );
-	}
-
 	public function test_a_lost_connection_on_the_page_keeps_the_selection_fields_when_escaped_on_output(): void {
 		$this->connect();
 		$this->ctd->respond( 'GET', '/v1/woocommerce/account', 401, array( 'error' => array( 'type' => 'authentication_error', 'code' => 'unauthenticated', 'message' => 'No.' ) ) );
@@ -167,133 +145,58 @@ class RoutesPageTest extends TestCase {
 		$this->assertStringContainsString( '<input type="hidden" name="ctdflow_selection[date]" value="' . $this->tomorrow . '" />', $page );
 	}
 
-	public function test_planning_above_the_free_tier_without_a_choice_asks_for_it_and_sends_nothing(): void {
+	public function test_a_free_account_sends_every_chosen_order_and_van_without_a_choice(): void {
 		$this->connect();
-		$this->account();
-		$orders = $this->orders( 26 );
-
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders ) );
-
-		$this->assertFalse( $response['success'] );
-		$this->assertSame( 'choice_needed', $response['data']['code'] );
-		$this->assertStringContainsString( 'Plan the first 25', $response['data']['html'] );
-		$this->assertSame( array( 'GET' ), array_column( $this->ctd->requests(), 'method' ) );
-	}
-
-	public function test_the_first_choice_sends_25_stops_by_time_window_then_order_number(): void {
-		$this->connect();
-		$this->account();
-		$this->settings( array( 'date_source' => 'woo-delivery' ) );
-		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-
-		$orders = array();
-
-		for ( $i = 0; $i < 26; $i++ ) {
-			$window   = 0 === $i ? array() : array( 'delivery_time' => $i <= 12 ? '13:00 - 15:00' : '09:00 - 11:00' );
-			$orders[] = $this->order( array( 'delivery_date' => $this->tomorrow ) + $window );
-		}
-
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'first' ) );
-
-		$this->assertTrue( $response['success'] );
-
-		$expected = array_map( static fn ( WC_Order $order ) => (string) $order->get_id(), array_merge( array_slice( $orders, 13 ), array_slice( $orders, 1, 12 ) ) );
-
-		$this->assertSame( $expected, array_column( $this->planBody()['stops'], 'reference' ) );
-	}
-
-	public function test_the_first_choice_reads_the_free_tier_fresh_instead_of_from_the_cache(): void {
-		$this->connect();
-		$this->account();
-		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 10 ) ) );
-		( new Account() )->fetch( $this->tomorrow );
-		$this->settings( array( 'date_source' => 'woo-delivery' ) );
-		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-
-		$orders = array();
-
-		for ( $i = 0; $i < 26; $i++ ) {
-			$orders[] = $this->order( array( 'delivery_date' => $this->tomorrow ) );
-		}
-
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'first' ) );
-
-		$this->assertTrue( $response['success'] );
-		$this->assertCount( 10, $this->planBody()['stops'] );
-	}
-
-	public function test_the_trial_choice_sends_all_orders(): void {
-		$this->connect();
-		$this->account();
-		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-		$orders = $this->orders( 26 );
-
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'trial' ) );
-
-		$this->assertTrue( $response['success'] );
-		$this->assertCount( 26, $this->planBody()['stops'] );
-	}
-
-	public function test_the_orders_the_first_choice_left_out_are_listed_as_not_planned(): void {
-		$this->connect();
-		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 1 ) ) );
-		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-		$orders = $this->orders( 2 );
-
-		$this->assertTrue( $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'first' ) )['success'] );
-
-		$sent     = (int) $this->planBody()['stops'][0]['reference'];
-		$left_out = $sent === $orders[0]->get_id() ? $orders[1] : $orders[0];
-		$plan     = $this->succeeded( wc_get_order( $sent ), $left_out );
-
-		$plan['unplanned'] = array();
-		$this->ctd->respond( 'GET', '/v1/woocommerce/plans/opt_1', 200, $plan );
-
-		$html = $this->ajax( 'handleStatus', $this->statusRequest() )['data']['html'];
-
-		$this->assertStringContainsString( '#' . $left_out->get_order_number(), $html );
-		$this->assertStringContainsString( 'Not sent, to stay within the free plan', $html );
-	}
-
-	public function test_planning_answers_with_the_plan_label_and_free_plan_line_after_a_trial_started(): void {
-		$this->connect();
-		$this->account();
-		$this->account( array( 'billing_status' => 'trial', 'paid' => true, 'free_tier' => null ) );
-		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $this->orders( 26 ), array( 'van-1' ), 'trial' ) );
-
-		$this->assertSame( 'Trial', $response['data']['plan_label'] );
-		$this->assertSame( '', $response['data']['tier_html'] );
-	}
-
-	public function test_the_free_plan_line_says_how_large_a_plan_of_the_day_can_be(): void {
-		$this->connect();
-		$this->account( array( 'free_tier' => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 20 ) ) );
-
-		$page = $this->renderedPage();
-
-		$this->assertStringContainsString( 'Free plan: plans of up to 20 stops for this day, with 1 van.', $page );
-		$this->assertStringContainsString( '<span class="ctdflow-plan-label">Free</span>', $page );
-	}
-
-	public function test_a_free_account_with_two_active_vans_gets_the_choice_and_the_first_sends_one_van(): void {
-		$this->connect();
-		$this->account();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 3 ) ) );
 		$this->settings( array( 'vehicles' => array( $this->van( 'van-a', 'Van A' ), $this->van( 'van-b', 'Van B' ) ) ) );
 		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
-		$orders = $this->orders( 3 );
+		$orders = $this->orders( 26 );
 
 		$page = $this->renderedPage();
 
-		$this->assertStringContainsString( 'Plan with 1 van', $page );
-		$this->assertStringContainsString( 'Try a paid plan free for 30 days', $page );
+		$this->assertStringNotContainsString( 'name="choice"', $page );
+		$this->assertStringNotContainsString( '30 days', $page );
 
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-a', 'van-b' ), 'first' ) );
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-a', 'van-b' ) ) );
 
+		// A day planned before only counts its new addresses, so Connect the Dots decides, not the plugin.
 		$this->assertTrue( $response['success'] );
-		$this->assertSame( array( 'Van A' ), array_column( $this->planBody()['vehicles'], 'name' ) );
-		$this->assertCount( 3, $this->planBody()['stops'] );
+		$this->assertCount( 26, $this->planBody()['stops'] );
+		$this->assertSame( array( 'Van A', 'Van B' ), array_column( $this->planBody()['vehicles'], 'name' ) );
+	}
+
+	public function test_a_used_up_month_shows_the_stops_left_with_a_link_to_the_pricing(): void {
+		$this->connect();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 4 ) ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 402, array( 'error' => array( 'type' => 'billing_error', 'code' => 'free_tier_exhausted', 'message' => 'Exhausted.' ) ) );
+
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $this->orders( 6 ) ) );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'free_tier_exhausted', $response['data']['code'] );
+		$this->assertStringContainsString( 'The free plan covers 100 planned stops per month and 4 stops are left this month, fewer than this plan needs.', $response['data']['html'] );
+		$this->assertStringContainsString( 'href="https://ctdflow.com/pricing"', $response['data']['html'] );
+	}
+
+	public function test_planning_answers_with_the_plan_label_and_free_plan_line_after_planning(): void {
+		$this->connect();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 74 ) ) );
+		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
+
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $this->orders( 26 ) ) );
+
+		$this->assertSame( 'Free', $response['data']['plan_label'] );
+		$this->assertStringContainsString( 'Free plan: 74 of 100 planned stops left this month.', $response['data']['tier_html'] );
+	}
+
+	public function test_the_free_plan_line_says_how_many_stops_are_left_this_month(): void {
+		$this->connect();
+		$this->account( array( 'free_tier' => array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 62 ) ) );
+
+		$page = $this->renderedPage();
+
+		$this->assertStringContainsString( 'Free plan: 62 of 100 planned stops left this month. A stop is one address on one delivery day.', $page );
+		$this->assertStringContainsString( '<span class="ctdflow-plan-label">Free</span>', $page );
 	}
 
 	public function test_a_paid_account_plans_everything_without_a_choice(): void {
@@ -301,8 +204,6 @@ class RoutesPageTest extends TestCase {
 		$this->account( array( 'billing_status' => 'active', 'paid' => true, 'free_tier' => null ) );
 		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 202, $this->queued() );
 		$orders = $this->orders( 26 );
-
-		$this->assertStringNotContainsString( 'Plan the first', $this->renderedPage() );
 
 		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders ) );
 
@@ -318,7 +219,7 @@ class RoutesPageTest extends TestCase {
 		$this->ctd->respond( 'POST', '/v1/woocommerce/plans', 402, array( 'error' => array( 'type' => 'billing_error', 'code' => 'upgrade_required', 'message' => 'Upgrade.' ) ) );
 		$orders = $this->orders( 26 );
 
-		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders, array( 'van-1' ), 'trial' ) );
+		$response = $this->ajax( 'handlePlan', $this->planRequest( $orders ) );
 
 		$this->assertFalse( $response['success'] );
 		$this->assertSame( 'upgrade_required', $response['data']['code'] );
@@ -837,16 +738,14 @@ class RoutesPageTest extends TestCase {
 	/**
 	 * @param WC_Order[] $orders Orders to plan.
 	 * @param string[]   $vans   Van ids.
-	 * @param string     $choice Free tier choice.
 	 */
-	private function planRequest( array $orders, array $vans = array( 'van-1' ), string $choice = '' ): array {
+	private function planRequest( array $orders, array $vans = array( 'van-1' ) ): array {
 		return array(
 			'action'      => 'ctdflow_plan',
 			'nonce'       => wp_create_nonce( 'ctdflow_routes' ),
 			'date'        => $this->tomorrow,
 			'order_ids'   => array_map( static fn ( WC_Order $order ) => (string) $order->get_id(), $orders ),
 			'vehicle_ids' => $vans,
-			'choice'      => $choice,
 		);
 	}
 
@@ -887,8 +786,8 @@ class RoutesPageTest extends TestCase {
 					'organization'        => 'Bakkerij Jansen',
 					'billing_status'      => 'free',
 					'paid'                => false,
-					'trial_available'     => true,
-					'free_tier'           => array( 'max_vehicles' => 1, 'max_stops' => 25, 'remaining_stops' => 25 ),
+					'trial_available'     => false,
+					'free_tier'           => array( 'max_vehicles' => 10, 'max_stops' => 100, 'remaining_stops' => 100 ),
 					'supported_countries' => array( 'NL', 'BE' ),
 					'pricing_url'         => 'https://ctdflow.com/pricing',
 				),

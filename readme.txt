@@ -32,7 +32,7 @@ The plugin is available in English and Dutch.
 
 **Free and paid**
 
-You can plan delivery routes for free, within the limits of the free level. Larger deliveries and automatic planning need a paid plan, which you can try for 30 days. The plugin has no licence key and no locked features of its own. Connect the Dots decides what is free and what is paid when you plan, and the plugin shows you the answer.
+You can plan 100 stops per month for free, with every feature of the planner. A stop is one address on one delivery day: planning a day again does not count its addresses twice. The 100 stops are shared with the other ways to use Connect the Dots, such as its own planner in the browser. Automatic planning and more stops need a paid plan. The plugin has no licence key and no locked features of its own. Connect the Dots decides what is free and what is paid when you plan, and the plugin shows you the answer.
 
 **Connect the Dots**
 
@@ -95,7 +95,7 @@ Yes. The routes are planned by the Connect the Dots service, so the plugin needs
 
 = What is free and what is paid? =
 
-Planning delivery routes is free within the limits of the free level, which you can see in the plugin before you plan. If your delivery day is larger than that, or you want automatic planning, you need a paid plan, which you can try for 30 days first. Connect the Dots decides what is free and what is paid. The plugin has no licence key and does not lock any feature by itself. It only shows what the service answers.
+Planning delivery routes is free for 100 stops per month. A stop is one address on one delivery day, and planning a day again does not count its addresses twice. The plugin shows how many stops are left this month before you plan. For more stops or automatic planning you need a paid plan. Connect the Dots decides what is free and what is paid. The plugin has no licence key and does not lock any feature by itself. It only shows what the service answers.
 
 = Which data leaves my shop? =
 
